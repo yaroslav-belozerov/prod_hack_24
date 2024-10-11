@@ -1,5 +1,6 @@
 package com.yaabelozerov.holodos_mobile.di
 
+import android.content.Context
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -8,28 +9,30 @@ import com.yaabelozerov.holodos_mobile.data.network.ItemApi
 import com.yaabelozerov.holodos_mobile.domain.MainScreenViewModel
 import com.yaabelozerov.holodos_mobile.domain.network.service.ItemService
 import com.yaabelozerov.holodos_mobile.mock.MockItemApi
-import org.koin.androidx.viewmodel.dsl.viewModel
-import org.koin.androidx.viewmodel.dsl.viewModelOf
-import org.koin.dsl.module
+import dagger.Binds
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import javax.inject.Singleton
 
-val appModule = module {
-    factory {
-        Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
+@Module
+@InstallIn(SingletonComponent::class)
+object AppModule {
+    @Singleton
+    @Provides
+    fun provideApplication(
+        @ApplicationContext app: Context,
+    ): BaseApplication {
+        return app as BaseApplication
     }
 
-    factory {
-        val moshi by inject<Moshi>()
-        Retrofit.Builder().baseUrl(C.BASE_URL).addConverterFactory(MoshiConverterFactory.create(moshi))
+    @Singleton
+    @Provides
+    fun provideItemApi(): ItemService {
+        return if (C.IS_MOCK) MockItemApi() else ItemApi(Retrofit.Builder().baseUrl(C.BASE_URL).build())
     }
-
-    single<ItemService> {
-//        val retrofit by inject<Retrofit>()
-//        ItemApi(retrofit)
-
-        MockItemApi()
-    }
-
-    viewModel { MainScreenViewModel(get()) }
 }

@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,27 +39,22 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.yaabelozerov.holodos_mobile.di.appModule
 import com.yaabelozerov.holodos_mobile.domain.MainScreenViewModel
 import com.yaabelozerov.holodos_mobile.ui.MainPage
 import com.yaabelozerov.holodos_mobile.ui.Navigation
 import com.yaabelozerov.holodos_mobile.ui.SettingsPage
 import com.yaabelozerov.holodos_mobile.ui.theme.AddWidget
 import com.yaabelozerov.holodos_mobile.ui.theme.Holodos_mobileTheme
-import org.koin.androidx.viewmodel.ext.android.viewModel
-import org.koin.core.context.startKoin
+import dagger.hilt.android.AndroidEntryPoint
 
-class MainActivity : ComponentActivity() {
-    private val mvm: MainScreenViewModel by viewModel()
+@AndroidEntryPoint
+class MainActivity : AppCompatActivity() {
+    private val mvm: MainScreenViewModel by viewModels()
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-        startKoin {
-            modules(appModule)
-        }
 
         setContent {
             val navController = rememberNavController()

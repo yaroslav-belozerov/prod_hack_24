@@ -1,6 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+
+    id("com.google.devtools.ksp")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -40,7 +43,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.2"
     }
     packaging {
         resources {
@@ -67,8 +70,10 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    implementation("io.insert-koin:koin-core:3.3.3")
-    implementation("io.insert-koin:koin-android:3.3.3")
+    implementation("com.google.dagger:hilt-android:2.51.1")
+    ksp("com.google.dagger:hilt-android-compiler:2.51.1")
+
+    implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.moshi:moshi-kotlin:1.15.1")
     implementation("com.squareup.moshi:moshi:1.15.1")

@@ -17,6 +17,9 @@ class MainScreenViewModel: ViewModel() {
         _items.update {
             listOf(
                 Pair("Молоко", 5),
+                Pair("Говно", 3),
+                Pair("Ярослва", 1),
+                Pair("Бычья мошонка", 77),
             )
         }
     }

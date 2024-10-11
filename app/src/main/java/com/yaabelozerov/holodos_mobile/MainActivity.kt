@@ -28,6 +28,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.yaabelozerov.holodos_mobile.domain.MainScreenViewModel
+import com.yaabelozerov.holodos_mobile.ui.MainPage
 import com.yaabelozerov.holodos_mobile.ui.Navigation
 import com.yaabelozerov.holodos_mobile.ui.theme.Holodos_mobileTheme
 
@@ -74,14 +75,8 @@ class MainActivity : ComponentActivity() {
                             Text("Settings")
                         }
                         composable(Navigation.FRIDGE.route) {
-                            Column {
-                                mvm.items.collectAsState().value.map {
-                                    Row {
-                                        Text(it.first)
-                                        Text(it.second.toString())
-                                    }
-                                }
-                            }
+                            val items = mvm.items.collectAsState().value
+                            MainPage(items)
                         }
                         composable(Navigation.LIST.route) {
                             Text("Shopping List")

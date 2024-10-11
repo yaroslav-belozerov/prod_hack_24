@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">holodos_mobile</string>
+    <string name="expired">Просрочено!</string>
 </resources>

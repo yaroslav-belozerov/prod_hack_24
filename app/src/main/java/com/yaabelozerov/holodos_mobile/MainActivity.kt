@@ -10,14 +10,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -29,17 +27,24 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.yaabelozerov.holodos_mobile.di.appModule
 import com.yaabelozerov.holodos_mobile.domain.MainScreenViewModel
 import com.yaabelozerov.holodos_mobile.ui.MainPage
 import com.yaabelozerov.holodos_mobile.ui.Navigation
 import com.yaabelozerov.holodos_mobile.ui.theme.Holodos_mobileTheme
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.context.startKoin
 
 class MainActivity : ComponentActivity() {
+    private val mvm: MainScreenViewModel by viewModel()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val mvm: MainScreenViewModel by viewModels()
+        startKoin {
+            modules(appModule)
+        }
 
         setContent {
             val navController = rememberNavController()
@@ -77,8 +82,10 @@ class MainActivity : ComponentActivity() {
                             Text("Settings")
                         }
                         composable(Navigation.FRIDGE.route) {
-                            val items = mvm.items.collectAsState().value
-                            MainPage(items)
+                            Column {
+                                val items = mvm.items.collectAsState().value
+                                MainPage(items.map { Pair(it.name, it.daysUntilExpiry) })
+                            }
                         }
                         composable(Navigation.LIST.route) {
                             Text("Shopping List")

@@ -10,17 +10,22 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarColors
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
@@ -38,6 +43,7 @@ import org.koin.core.context.startKoin
 class MainActivity : ComponentActivity() {
     private val mvm: MainScreenViewModel by viewModel()
 
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -50,29 +56,50 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
 
             Holodos_mobileTheme {
-                Scaffold(modifier = Modifier.fillMaxSize(), bottomBar = {
-                    NavigationBar {
-                        val navBackStackEntry by navController.currentBackStackEntryAsState()
-                        val currentDestination = navBackStackEntry?.destination
-                        Navigation.entries.forEach { screen ->
-                            val selected =
-                                currentDestination?.hierarchy?.any { it.route == screen.route } == true
-                            NavigationBarItem(selected = selected, onClick = {
-                                navController.popBackStack(
-                                    screen.route, inclusive = true, saveState = true
-                                )
-                                navController.navigate(screen.route)
-                            }, icon = {
-                                Icon(
-                                    imageVector = if (selected) screen.filled else screen.outlined,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = if (!selected) Modifier.alpha(0.4f) else Modifier
-                                )
-                            })
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    bottomBar = {
+                        NavigationBar {
+                            val navBackStackEntry by navController.currentBackStackEntryAsState()
+                            val currentDestination = navBackStackEntry?.destination
+                            Navigation.entries.forEach { screen ->
+                                val selected =
+                                    currentDestination?.hierarchy?.any { it.route == screen.route } == true
+                                NavigationBarItem(selected = selected, onClick = {
+                                    navController.popBackStack(
+                                        screen.route, inclusive = true, saveState = true
+                                    )
+                                    navController.navigate(screen.route)
+                                }, icon = {
+                                    Icon(
+                                        imageVector = if (selected) screen.filled else screen.outlined,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = if (!selected) Modifier.alpha(0.4f) else Modifier
+                                    )
+                                })
+                            }
                         }
+                    },
+                    topBar = {
+                        CenterAlignedTopAppBar(
+                            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                titleContentColor = MaterialTheme.colorScheme.primary
+                            ),
+                            title = {
+                                val navZalupa = Navigation.entries.find {
+                                    it.route == navController.currentBackStackEntryAsState().value?.destination?.route
+                                }
+                                if (navZalupa != null) {
+                                    Text(
+                                        text = stringResource(navZalupa.title)
+                                    )
+                                }
+                            }
+                        )
                     }
-                }) { innerPadding ->
+                ) { innerPadding ->
                     NavHost(
                         modifier = Modifier.padding(innerPadding),
                         navController = navController,

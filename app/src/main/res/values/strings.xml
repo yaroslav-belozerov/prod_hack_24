@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">holodos_mobile</string>
     <string name="expired">Просрочено!</string>
+    <string name="fridge">Holodos!</string>
+    <string name="settings">Настройки</string>
+    <string name="cart">Корзина</string>
 </resources>

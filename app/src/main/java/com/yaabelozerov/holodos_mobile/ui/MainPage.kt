@@ -48,7 +48,7 @@ fun Product(
     modifier: Modifier = Modifier
 ) {
     Card(
-        colors = CardDefaults.cardColors().copy(containerColor = if (expTime > 0) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.errorContainer),
+        colors = CardDefaults.cardColors().copy(containerColor = if (expTime > 0) MaterialTheme.colorScheme.surfaceContainer else MaterialTheme.colorScheme.errorContainer),
         modifier = Modifier
             .fillMaxWidth()
             .height(60.dp)
@@ -74,13 +74,20 @@ fun Product(
 
             } else {
                 Text(
-                    text = name
+                    text = name,
+                    fontSize = 18.sp,
+                    modifier =  Modifier
+                        .padding(16.dp)
+
                 )
                 Spacer(
                     Modifier.weight(1f)
                 )
                 Text(
-                    text = stringResource(R.string.expired)
+                    text = stringResource(R.string.expired),
+                    fontSize = 18.sp,
+                    modifier =  Modifier
+                        .padding(16.dp)
                 )
             }
 

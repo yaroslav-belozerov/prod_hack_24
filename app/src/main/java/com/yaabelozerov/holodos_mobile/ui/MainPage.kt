@@ -29,12 +29,14 @@ fun MainPage(
 ) {
     val p = products
     Column {
+
         p.map {
             Product(
                 name = it.first,
                 expTime = it.second,
                 modifier = Modifier
             )
+            Spacer(modifier = Modifier.size(5.dp))
         }
     }
 }
@@ -50,7 +52,7 @@ fun Product(
         modifier = Modifier
             .fillMaxWidth()
             .height(60.dp)
-        
+
     ) {
         Row {
             if (expTime > 0) {

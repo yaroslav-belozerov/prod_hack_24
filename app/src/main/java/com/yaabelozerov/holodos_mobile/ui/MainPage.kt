@@ -50,6 +50,7 @@ fun Product(
         modifier = Modifier
             .fillMaxWidth()
             .height(60.dp)
+        
     ) {
         Row {
             if (expTime > 0) {

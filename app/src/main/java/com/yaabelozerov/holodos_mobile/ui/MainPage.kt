@@ -23,16 +23,16 @@ fun MainPage() {
 @Composable
 fun Product(
     name: String,
-    exp_time: Int,
+    expTime: Int,
     expired: Boolean,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = Modifier,
-        colors = CardDefaults.cardColors().copy(containerColor = if (exp_time > 0) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.errorContainer)
+        colors = CardDefaults.cardColors().copy(containerColor = if (expTime > 0) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.errorContainer)
     ) {
         Row {
-            if (exp_time > 0) {
+            if (expTime > 0) {
                 Text(
                     text = name
                 )
@@ -40,7 +40,7 @@ fun Product(
                     Modifier.weight(1f)
                 )
                 Text(
-                    text = exp_time.toString()
+                    text = expTime.toString()
                 )
 
             } else {

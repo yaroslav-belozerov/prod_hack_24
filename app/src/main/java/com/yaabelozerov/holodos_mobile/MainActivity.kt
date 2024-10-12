@@ -27,6 +27,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,6 +61,9 @@ class MainActivity : AppCompatActivity() {
     private val mainViewModel: MainScreenViewModel by viewModels()
     private val settingsViewModel: SettingsScreenViewModel by viewModels()
     private val cartScreenViewModel: CartScreenViewModel by viewModels()
+    var shouldShowCamera: MutableState<Boolean> = mutableStateOf(false)
+
+
 
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -130,6 +134,10 @@ class MainActivity : AppCompatActivity() {
                                         }) {
                                             Icon(Icons.Filled.MoreVert, "Sort")
                                         }
+                                        FloatingActionButton(onClick = {}) {
+                                            Icon(Icons.Filled.Add, "Add Product by QR")
+                                        }
+
                                     }
                                 }
                                 else -> {}

@@ -80,4 +80,14 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
     implementation("androidx.navigation:navigation-compose:2.8.2")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
+
+    // implementation("com.journeyapps:zxing-android-embedded:4.1.0")
+    // implementation("com.budiyev.android:code-scanner:2.1.0")
+    implementation("io.github.g00fy2.quickie:quickie-unbundled:1.10.0")
+    implementation("androidx.camera:camera-camera2:1.2.3")
+    implementation("androidx.camera:camera-lifecycle:1.2.3")
+    implementation("androidx.camera:camera-view:1.3.0-beta01")
+
+
+
 }

@@ -1,8 +1,11 @@
 package com.yaabelozerov.holodos_mobile
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Arrangement
@@ -45,6 +48,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.yaabelozerov.holodos_mobile.domain.CartScreenViewModel
 import com.yaabelozerov.holodos_mobile.domain.MainScreenViewModel
+import com.yaabelozerov.holodos_mobile.domain.QrCodeAnalizer
 import com.yaabelozerov.holodos_mobile.domain.SettingsScreenViewModel
 import com.yaabelozerov.holodos_mobile.domain.Sorting
 import com.yaabelozerov.holodos_mobile.ui.MainPage
@@ -52,6 +56,8 @@ import com.yaabelozerov.holodos_mobile.ui.Navigation
 import com.yaabelozerov.holodos_mobile.ui.SettingsPage
 import com.yaabelozerov.holodos_mobile.ui.AddWidget
 import com.yaabelozerov.holodos_mobile.ui.AuthPage
+import com.yaabelozerov.holodos_mobile.ui.QrPage
+import com.yaabelozerov.holodos_mobile.ui.ScanQR
 import com.yaabelozerov.holodos_mobile.ui.ShoppingListPage
 import com.yaabelozerov.holodos_mobile.ui.theme.Holodos_mobileTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -63,12 +69,25 @@ class MainActivity : AppCompatActivity() {
     private val cartScreenViewModel: CartScreenViewModel by viewModels()
     var shouldShowCamera: MutableState<Boolean> = mutableStateOf(false)
 
-
-
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        var hasCameraPermission: Boolean = false
+        val cameraPermissionRequestLauncher: ActivityResultLauncher<String> =
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+                if (isGranted) {
+                    // Permission granted: proceed with opening the camera
+                    hasCameraPermission = true
+                } else {
+                    // Permission denied: inform the user to enable it through settings
+                    Toast.makeText(
+                        this,
+                        "Go to settings and enable camera permission to use this feature",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
 
         setContent {
             val navController = rememberNavController()
@@ -134,7 +153,9 @@ class MainActivity : AppCompatActivity() {
                                         }) {
                                             Icon(Icons.Filled.MoreVert, "Sort")
                                         }
-                                        FloatingActionButton(onClick = {}) {
+                                        FloatingActionButton(onClick = {
+                                            cameraPermissionRequestLauncher.launch("**/**")
+                                        }) {
                                             Icon(Icons.Filled.Add, "Add Product by QR")
                                         }
 
@@ -186,6 +207,11 @@ class MainActivity : AppCompatActivity() {
                                         settingsViewModel.login(
                                             it
                                         )
+                                    }
+                                }
+                                composable(Navigation.SCAN.route ) {
+                                    QrPage(hasCameraPermission, ) {
+                                        mainViewModel
                                     }
                                 }
                             }

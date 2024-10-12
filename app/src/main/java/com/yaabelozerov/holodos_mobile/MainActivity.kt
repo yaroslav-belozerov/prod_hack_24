@@ -34,6 +34,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.yaabelozerov.holodos_mobile.domain.CartScreenViewModel
 import com.yaabelozerov.holodos_mobile.domain.MainScreenViewModel
 import com.yaabelozerov.holodos_mobile.domain.SettingsScreenViewModel
 import com.yaabelozerov.holodos_mobile.mock.MockApi
@@ -42,6 +43,7 @@ import com.yaabelozerov.holodos_mobile.ui.Navigation
 import com.yaabelozerov.holodos_mobile.ui.SettingsPage
 import com.yaabelozerov.holodos_mobile.ui.AddWidget
 import com.yaabelozerov.holodos_mobile.ui.AuthPage
+import com.yaabelozerov.holodos_mobile.ui.ShoppingListPage
 import com.yaabelozerov.holodos_mobile.ui.theme.Holodos_mobileTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -49,6 +51,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private val mainViewModel: MainScreenViewModel by viewModels()
     private val settingsViewModel: SettingsScreenViewModel by viewModels()
+    private val cartScreenViewModel: CartScreenViewModel by viewModels()
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -125,7 +128,8 @@ class MainActivity : AppCompatActivity() {
                                     }
                                 }
                                 composable(Navigation.LIST.route) {
-                                    Text("Shopping List")
+                                    val items = cartScreenViewModel.items.collectAsState().value
+                                    ShoppingListPage(items)
                                 }
                                 composable(Navigation.AUTH.route) {
                                     AuthPage(modifier = Modifier.padding(innerPadding)) {

@@ -35,6 +35,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -63,16 +64,23 @@ fun SettingsPage(settingsViewModel: SettingsScreenViewModel, users: List<UserDTO
             modifier = Modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(users) {
-                AvatarContainer({ settingsViewModel.updateUser(it) }, it)
+                AvatarContainer(
+                    settingsViewModel.currentId.collectAsState().value,
+                    { settingsViewModel.updateUser(it) },
+                    it
+                )
             }
             item {
-                Box(
-                    modifier = Modifier
-                        .clickable {  }
-                        .clip(MaterialTheme.shapes.medium)
-                        .size(64.dp)
-                ) {
-                    Icon(Icons.Filled.AddCircle, contentDescription = null, modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.primary)
+                Box(modifier = Modifier
+                    .clip(CircleShape)
+                    .clickable { }
+                    .size(64.dp)) {
+                    Icon(
+                        Icons.Filled.AddCircle,
+                        contentDescription = null,
+                        modifier = Modifier.size(64.dp),
+                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+                    )
                 }
             }
 
@@ -99,7 +107,8 @@ fun SettingsPage(settingsViewModel: SettingsScreenViewModel, users: List<UserDTO
 }
 
 @Composable
-fun AvatarContainer(onSave: (UserDTO) -> Unit, data: UserDTO) {
+fun AvatarContainer(currentId: Long?, onSave: (UserDTO) -> Unit, data: UserDTO) {
+    // TODO ux вы, блокировать едит других юзеров
     var openDialog by remember { mutableStateOf(false) }
     var newData by remember {
         mutableStateOf(data)
@@ -122,8 +131,7 @@ fun AvatarContainer(onSave: (UserDTO) -> Unit, data: UserDTO) {
                             )
                         ) {
                             Image(
-                                painterResource(it.res),
-                                null,
+                                painterResource(it.res), null,
                                 Modifier
                                     .padding(16.dp)
                                     .size(32.dp)
@@ -131,7 +139,12 @@ fun AvatarContainer(onSave: (UserDTO) -> Unit, data: UserDTO) {
                         }
                     }
                 }
-                OutlinedTextField(newData.name, { newData = newData.copy(name = it) }, Modifier.padding(16.dp), singleLine = true)
+                OutlinedTextField(
+                    newData.name,
+                    { newData = newData.copy(name = it) },
+                    Modifier.padding(16.dp),
+                    singleLine = true
+                )
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(onClick = {
                         openDialog = false
@@ -148,14 +161,20 @@ fun AvatarContainer(onSave: (UserDTO) -> Unit, data: UserDTO) {
             }
         }
     }
-    Column(
-        modifier = Modifier.clip(MaterialTheme.shapes.medium).clickable { openDialog = true },
+    Column(modifier = Modifier
+        .clip(MaterialTheme.shapes.medium)
+        .border(
+            2.dp,
+            if (currentId == data.id) MaterialTheme.colorScheme.primary else Color.Transparent,
+            MaterialTheme.shapes.medium
+        )
+        .then(if (currentId == data.id) Modifier.clickable { openDialog = true }
+        else Modifier)
+        .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
+        verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Image(
-            modifier = Modifier
-                .size(64.dp),
+            modifier = Modifier.size(64.dp),
             painter = painterResource(Avatars.entries[data.avatarIndex].res),
             contentDescription = null
         )

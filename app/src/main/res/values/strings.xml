@@ -12,4 +12,8 @@
     <string name="save">Сохранить</string>
     <string name="auth">Авторизоваться</string>
     <string name="askPhoneNum">Введите номер телефона</string>
+    <string name="none">Нет</string>
+    <string name="by_expiry_date">По сроку годности</string>
+    <string name="by_quantity">По количеству</string>
+    <string name="sort">Сортировка</string>
 </resources>

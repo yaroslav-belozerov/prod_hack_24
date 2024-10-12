@@ -1,6 +1,7 @@
 package com.yaabelozerov.holodos_mobile
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -57,17 +58,16 @@ class MainActivity : AppCompatActivity() {
         setContent {
             val navController = rememberNavController()
             var addWidgetOpen by remember { mutableStateOf(false) }
-            var firstTime: Boolean = true
 
             Holodos_mobileTheme {
-                if (!firstTime) {
-                    Scaffold(
-                        modifier = Modifier.fillMaxSize(),
-                        bottomBar = {
+                val l = settingsViewModel.loggedIn.collectAsState().value
+                if (l != null) {
+                    if (l) {
+                        Scaffold(modifier = Modifier.fillMaxSize(), bottomBar = {
                             NavigationBar {
                                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                                 val currentDestination = navBackStackEntry?.destination
-                                Navigation.entries.forEach { screen ->
+                                Navigation.entries.filter { it.showInNavBar }.forEach { screen ->
                                     val selected =
                                         currentDestination?.hierarchy?.any { it.route == screen.route } == true
                                     NavigationBarItem(selected = selected, onClick = {
@@ -85,73 +85,75 @@ class MainActivity : AppCompatActivity() {
                                     })
                                 }
                             }
-                        },
-                        topBar = {
-                            CenterAlignedTopAppBar(
-                                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                    titleContentColor = MaterialTheme.colorScheme.primary
-                                ),
-                                title = {
-                                    val navigation = Navigation.entries.find {
-                                        it.route == navController.currentBackStackEntryAsState().value?.destination?.route
-                                    }
-                                    if (navigation != null) {
-                                        Text(
-                                            text = stringResource(navigation.title)
-                                        )
-                                    }
+                        }, topBar = {
+                            CenterAlignedTopAppBar(colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                titleContentColor = MaterialTheme.colorScheme.primary
+                            ), title = {
+                                val navigation = Navigation.entries.find {
+                                    it.route == navController.currentBackStackEntryAsState().value?.destination?.route
                                 }
-                            )
-                        },
-                        floatingActionButton = {
-                            FloatingActionButton(
-                                onClick = {
-                                    addWidgetOpen = true
+                                if (navigation != null) {
+                                    Text(
+                                        text = stringResource(navigation.title)
+                                    )
                                 }
-                            ) {
+                            })
+                        }, floatingActionButton = {
+                            FloatingActionButton(onClick = {
+                                addWidgetOpen = true
+                            }) {
                                 Icon(Icons.Filled.Add, "Add Product")
                             }
                             if (addWidgetOpen) AddWidget {
                                 addWidgetOpen = false
                             }
-                        }
-                    ) { innerPadding ->
-                        NavHost(
-                            modifier = Modifier.padding(innerPadding),
-                            navController = navController,
-                            startDestination = Navigation.FRIDGE.route
-                        ) {
-                            composable(Navigation.SETTINGS.route) {
-                                val user = settingsViewModel.users.collectAsState().value
-                                SettingsPage(settingsViewModel, user)
-                            }
-                            composable(Navigation.FRIDGE.route) {
-                                Column {
-                                    val items = mainViewModel.items.collectAsState().value
-                                    MainPage(items.map { Triple(it.name, it.daysUntilExpiry, it.quantity) })
+                        }) { innerPadding ->
+                            NavHost(
+                                modifier = Modifier.padding(innerPadding),
+                                navController = navController,
+                                startDestination = Navigation.FRIDGE.route
+                            ) {
+                                composable(Navigation.SETTINGS.route) {
+                                    val user = settingsViewModel.users.collectAsState().value
+                                    SettingsPage(settingsViewModel, user)
+                                }
+                                composable(Navigation.FRIDGE.route) {
+                                    Column {
+                                        val items = mainViewModel.items.collectAsState().value
+                                        MainPage(items.map {
+                                            Triple(
+                                                it.name, it.daysUntilExpiry, it.quantity
+                                            )
+                                        })
+                                    }
+                                }
+                                composable(Navigation.LIST.route) {
+                                    Text("Shopping List")
+                                }
+                                composable(Navigation.AUTH.route) {
+                                    AuthPage(modifier = Modifier.padding(innerPadding)) {
+                                        settingsViewModel.login(
+                                            it
+                                        )
+                                    }
                                 }
                             }
-                            composable(Navigation.LIST.route) {
-                                Text("Shopping List")
-                            }
                         }
-                    }
-                } else {
-                    Scaffold { innerPadding ->
-                        Column {
-                            AuthPage(modifier = Modifier.padding(innerPadding)) {
-                                settingsViewModel.login(
-                                    it
-                                )
+                    } else {
+                        Scaffold { innerPadding ->
+                            Column {
+                                AuthPage(modifier = Modifier.padding(innerPadding)) {
+                                    settingsViewModel.login(
+                                        it
+                                    )
+                                }
+                                val code = settingsViewModel.code.collectAsState().value
+                                Text(code.toString())
                             }
-                            val code = settingsViewModel.code.collectAsState().value
-                            Text(code.toString())
                         }
                     }
                 }
-
-
             }
         }
     }

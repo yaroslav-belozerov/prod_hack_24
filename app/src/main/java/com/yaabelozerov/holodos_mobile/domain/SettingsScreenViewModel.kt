@@ -1,5 +1,6 @@
 package com.yaabelozerov.holodos_mobile.domain
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yaabelozerov.holodos_mobile.C
@@ -35,8 +36,22 @@ class SettingsScreenViewModel @Inject constructor(private val api: HolodosServic
     private val _code = MutableStateFlow(0)
     val code = _code.asStateFlow()
 
+    private val _loggedIn = MutableStateFlow<Boolean?>(null)
+    val loggedIn = _loggedIn.asStateFlow()
+
     init {
         serverStatus()
+        fetchUid()
+    }
+
+    fun fetchUid() {
+        viewModelScope.launch {
+            dataStoreManager.getUid().collect { uid ->
+                _loggedIn.update { uid != -1L }
+                _currentId.update { uid }
+                fetchUsers(uid)
+            }
+        }
     }
 
     fun serverStatus() {
@@ -62,15 +77,16 @@ class SettingsScreenViewModel @Inject constructor(private val api: HolodosServic
             _currentId.update {
                 val uid = api.login(number)
                 dataStoreManager.setUid(uid)
+                fetchUid()
                 uid
             }
         }
     }
 
-    fun fetchUsers() {
+    fun fetchUsers(id: Long) {
         viewModelScope.launch {
             _users.update {
-                api.getUsers(currentId.value!!)
+                api.getUsers(id)
             }
         }
     }
@@ -78,7 +94,7 @@ class SettingsScreenViewModel @Inject constructor(private val api: HolodosServic
     fun updateUser(user: UserDTO) {
         viewModelScope.launch {
             api.updateUser(user)
-            fetchUsers()
+            fetchUsers(currentId.value!!)
         }
     }
 }

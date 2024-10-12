@@ -21,6 +21,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,6 +47,14 @@ fun ShoppingListPage(
         modifier = Modifier
             .fillMaxSize()
     ) {
+        LazyColumn (
+            modifier = Modifier.padding(16.dp)
+        ) {
+            items(cartItems) {
+                Item(it.name, it.pictureURL, it.quantity, it.bestBefore)
+                Spacer(Modifier.size(8.dp))
+            }
+        }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -54,23 +63,19 @@ fun ShoppingListPage(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Корзина" // TODO String res
+                text = "Предложения", // TODO String res
+                modifier = Modifier
+                    .padding(16.dp, 4.dp, 8.dp, 4.dp),
             )
             Box(
                 modifier = Modifier
-                    .height(4.dp)
+                    .padding(0.dp, 0.dp, 8.dp, 0.dp)
+                    .height(5.dp)
                     .weight(1f)
                     .clip(MaterialTheme.shapes.medium)
-                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f))
+                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f))
+
             )
-        }
-        LazyColumn (
-            modifier = Modifier.padding(16.dp)
-        ) {
-            items(cartItems) {
-                Item(it.name, it.pictureURL, it.quantity, it.bestBefore)
-                Spacer(Modifier.size(8.dp))
-            }
         }
     }
 
@@ -105,9 +110,9 @@ fun Item (
 
             Spacer(modifier = Modifier.weight(1f))
 
-            Button(onClick = {
-                item = item.copy(quantity = item.quantity + 1)
-            }) { Icon(Icons.Filled.KeyboardArrowUp, contentDescription = null) }
+            IconButton(onClick = {
+                item = item.copy(quantity = item.quantity - 1)
+            }) { Icon(Icons.Filled.KeyboardArrowDown, contentDescription = null) }
 
             Spacer(modifier = Modifier.size(2.dp))
 
@@ -117,11 +122,11 @@ fun Item (
 
             Spacer(modifier = Modifier.size(2.dp))
 
-            Button(
+            IconButton(
                 onClick = {
-                    item = item.copy(quantity = item.quantity - 1)
+                    item = item.copy(quantity = item.quantity + 1)
                 }, enabled = item.quantity > 0
-            ) { Icon(Icons.Filled.KeyboardArrowDown, contentDescription = null) }
+            ) { Icon(Icons.Filled.KeyboardArrowUp, contentDescription = null) }
 
         }
     }

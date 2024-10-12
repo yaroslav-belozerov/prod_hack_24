@@ -154,7 +154,8 @@ class MainActivity : AppCompatActivity() {
                                             Icon(Icons.Filled.MoreVert, "Sort")
                                         }
                                         FloatingActionButton(onClick = {
-                                            cameraPermissionRequestLauncher.launch("**/**")
+                                            cameraPermissionRequestLauncher.launch(android.Manifest.permission.CAMERA)
+                                            navController.navigate(Navigation.SCAN.route)
                                         }) {
                                             Icon(Icons.Filled.Add, "Add Product by QR")
                                         }
@@ -209,8 +210,8 @@ class MainActivity : AppCompatActivity() {
                                         )
                                     }
                                 }
-                                composable(Navigation.SCAN.route ) {
-                                    QrPage(hasCameraPermission, ) {
+                                composable(Navigation.SCAN.route) {
+                                    QrPage(hasCameraPermission) {
                                         mainViewModel
                                     }
                                 }

@@ -17,4 +17,8 @@
     <string name="by_quantity">По количеству</string>
     <string name="sort">Сортировка</string>
     <string name="days">дн.</string>
+    <string name="scan_qr">Сканировать Чек</string>
+    <string name="fill_in">Заполнить</string>
+    <string name="valid_qr">QR-код действителен</string>
+    <string name="invalid_qr">Не удалось распознать QR чека</string>
 </resources>

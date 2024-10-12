@@ -21,6 +21,6 @@ enum class Navigation(var route: String, val filled: ImageVector, val outlined: 
     ),
     SETTINGS("Group", Icons.Filled.Person, Icons.Outlined.Person, R.string.account),
     AUTH("Auth", Icons.Default.Person, Icons.Outlined.Person, R.string.auth, false),
-    SCAN("Scan", Icons.Filled.Create, Icons.Outlined.Create, R.string.auth, false)
+    SCAN("Scan", Icons.Filled.Create, Icons.Outlined.Create, R.string.scan_qr, false)
 
 }

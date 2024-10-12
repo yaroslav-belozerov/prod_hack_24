@@ -36,6 +36,7 @@ import com.yaabelozerov.holodos_mobile.domain.QrCodeAnalizer
 
 @Composable
 fun ScanQR(
+    modifier: Modifier,
     hasCamerPermission: Boolean,
     onScan: (String) -> Unit
 ) {
@@ -47,7 +48,7 @@ fun ScanQR(
     val lifeCycleOwner = LocalLifecycleOwner.current
     val selector1 = ResolutionSelector.Builder().setResolutionStrategy(ResolutionStrategy(Size(1280, 720), ResolutionStrategy.FALLBACK_RULE_NONE)).build()
     Column(
-        Modifier.fillMaxSize()
+        modifier
     ) {
         if (hasCamerPermission) {
             AndroidView(factory = { context ->

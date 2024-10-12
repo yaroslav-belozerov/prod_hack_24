@@ -9,12 +9,12 @@ import kotlinx.coroutines.flow.update
 
 class MockApi: HolodosService {
     val items = mutableListOf(ItemDTO(0,"Молоко", 5, 1),
-        ItemDTO(1,"Говно", -1, 1),
+        ItemDTO(1,"Дедлайн", -1, 1),
         ItemDTO(2,"Ярослва", 1, 1),
-        ItemDTO(32,"Бычья мошонка", 77, 1))
-//    val users = mutableMapOf<Long, Pair<Int, String>>()
-    var currName = MutableStateFlow("Ярслав")
-    var currAvatar = MutableStateFlow(0)
+        ItemDTO(32,"Вайбы", 77, 1))
+    val users = mutableListOf<UserDTO>(
+        UserDTO(0, "asdasd", "Asdasd", "Asdasd", 0),
+    )
 
     override suspend fun getFridgeItems(): List<ItemDTO> {
         return items
@@ -28,15 +28,19 @@ class MockApi: HolodosService {
         return "example_token"
     }
 
+    override suspend fun addUer(data: UserDTO) {
+        users.add(data)
+    }
+
     override suspend fun getUser(id: Long): UserDTO {
-        return UserDTO("example_email", currName.value, "example_password", currAvatar.value)
+        return users.find { it.id == id }!!
     }
 
-    override suspend fun setName(name: String) {
-        currName.update { name }
+    override suspend fun setName(id: Long, name: String) {
+        return
     }
 
-    override suspend fun setAvatarIndex(avatarIndex: Int) {
-        currAvatar.update { avatarIndex }
+    override suspend fun setAvatarIndex(id: Long, avatarIndex: Int) {
+        return
     }
 }

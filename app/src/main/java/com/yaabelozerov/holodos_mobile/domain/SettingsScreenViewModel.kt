@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsScreenViewModel @Inject constructor(private val api: HolodosService): ViewModel() {
-    private val _userState = MutableStateFlow(UserDTO("", "", "", 0))
+    private val _userState = MutableStateFlow(UserDTO(0, "", "", "", 0))
     val userState = _userState.asStateFlow()
 
     init {

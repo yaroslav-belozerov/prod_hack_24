@@ -16,15 +16,19 @@ class HolodosApi(private val retrofit: Retrofit): HolodosService {
         TODO("Not yet implemented")
     }
 
+    override suspend fun addUer(data: UserDTO) {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun getUser(id: Long): UserDTO {
         TODO("Not yet implemented")
     }
 
-    override suspend fun setName(name: String) {
+    override suspend fun setName(id: Long, name: String) {
         TODO("Not yet implemented")
     }
 
-    override suspend fun setAvatarIndex(avatarIndex: Int) {
+    override suspend fun setAvatarIndex(id: Long, avatarIndex: Int) {
         TODO("Not yet implemented")
     }
 }

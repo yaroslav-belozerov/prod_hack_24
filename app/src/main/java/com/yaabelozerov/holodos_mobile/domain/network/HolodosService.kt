@@ -19,12 +19,15 @@ interface HolodosService {
     @GET("/api/login")
     suspend fun login(data: LoginDTO): String
 
+    @GET("/api/addUser")
+    suspend fun addUer(data: UserDTO)
+
     @GET("/api/users/{id}")
     suspend fun getUser(@Path("id") id: Long): UserDTO
 
     @GET("/api/setName")
-    suspend fun setName(name: String)
+    suspend fun setName(id: Long, name: String)
 
     @GET("/api/setAvatarIndex")
-    suspend fun setAvatarIndex(avatarIndex: Int)
+    suspend fun setAvatarIndex(id: Long, avatarIndex: Int)
 }

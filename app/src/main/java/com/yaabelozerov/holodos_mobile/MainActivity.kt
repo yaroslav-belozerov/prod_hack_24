@@ -105,7 +105,7 @@ class MainActivity : AppCompatActivity() {
                             }) {
                                 Icon(Icons.Filled.Add, "Add Product")
                             }
-                            if (addWidgetOpen) AddWidget {
+                            if (addWidgetOpen) AddWidget(onSave = {}) {
                                 addWidgetOpen = false
                             }
                         }) { innerPadding ->

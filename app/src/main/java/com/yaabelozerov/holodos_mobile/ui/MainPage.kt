@@ -29,21 +29,15 @@ import com.yaabelozerov.holodos_mobile.data.ItemDTO
 
 @Composable
 fun MainPage(
-    products: List<ItemDTO>,
-    // onClick: () -> Unit
+    products: List<Triple<String, Int, Int>>
 ) {
     val p = products
-    var addWidgetOpen by remember { mutableStateOf(false) }
-    if (addWidgetOpen) AddWidget {
-        addWidgetOpen = false
-    }
-
     LazyColumn(
         modifier = Modifier.padding(16.dp)
     )  {
 
          items(p) {
-             Product(it.name, it.daysUntilExpiry, it.quantity)
+             Product(it.first, it.second, it.third)
              Spacer(Modifier.size(8.dp))
         }
     }
@@ -63,70 +57,36 @@ fun Product(
             .height(64.dp)
     ) {
         Row (
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(16.dp)
         ) {
-            if (expTime > 0) {
-                Text(
-                    text = name,
-                    fontSize = 24.sp,
-                    modifier =  Modifier
-                        .padding(16.dp)
-                )
-                Text(
-                    text = "x",
-                    fontSize = 20.sp,
-                    color = Color.Gray,
-
-                )
-                Spacer(
-                    Modifier.size(10.dp)
-                )
-                Text(
-                    text = amount.toString(),
-                    fontSize = 20.sp,
-                    color = Color.Gray
-                )
-                Spacer(
-                    Modifier.weight(1f)
-                )
-                Text(
-                    text = expTime.toString(),
-                    fontSize = 20.sp,
-                    modifier =  Modifier
-                        .padding(16.dp)
-                )
-            } else {
-                Text(
-                    text = name,
-                    fontSize = 24.sp,
-                    modifier =  Modifier
-                        .padding(16.dp)
-                )
-                Text(
-                    text = "x",
-                    fontSize = 20.sp,
-                    color = Color.Gray,
-
-                    )
-                Spacer(
-                    Modifier.size(10.dp)
-                )
-                Text(
-                    text = amount.toString(),
-                    fontSize = 20.sp,
-                    color = Color.Gray
-                )
-                Spacer(
-                    Modifier.weight(1f)
-                )
-                Text(
-                    text = stringResource(R.string.expired),
-                    fontSize = 20.sp,
-                    modifier =  Modifier
-                        .padding(16.dp)
-                )
-            }
-
+            Text(
+                text = amount.toString(),
+                fontSize = 20.sp,
+                color = Color.Gray
+            )
+            Spacer(
+                Modifier.size(2.dp)
+            )
+            Text(
+                text = "×",
+                fontSize = 20.sp,
+                color = Color.Gray,
+            )
+            Spacer(
+                Modifier.size(8.dp)
+            )
+            Text(
+                text = name,
+                fontSize = 24.sp
+            )
+            Spacer(
+                Modifier.weight(1f)
+            )
+            Text(
+                text = if (expTime > 0) expTime.toString() else stringResource(R.string.expired),
+                fontSize = 20.sp
+            )
         }
     }
 }

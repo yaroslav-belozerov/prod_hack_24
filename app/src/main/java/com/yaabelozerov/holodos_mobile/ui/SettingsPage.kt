@@ -103,14 +103,13 @@ fun AvatarContainer(onSave: (UserDTO) -> Unit, data: UserDTO) {
                                 painterResource(it.res),
                                 null,
                                 Modifier
-                                    .clip(CircleShape)
                                     .padding(16.dp)
                                     .size(32.dp)
                             )
                         }
                     }
                 }
-                OutlinedTextField(newData.name, { newData = newData.copy(name = it) }, Modifier.padding(16.dp))
+                OutlinedTextField(newData.name, { newData = newData.copy(name = it) }, Modifier.padding(16.dp), singleLine = true)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(onClick = {
                         openDialog = false
@@ -128,14 +127,12 @@ fun AvatarContainer(onSave: (UserDTO) -> Unit, data: UserDTO) {
         }
     }
     Column(
-        modifier = Modifier.clickable { openDialog = true },
+        modifier = Modifier.clip(MaterialTheme.shapes.medium).clickable { openDialog = true },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Image(
             modifier = Modifier
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceContainer)
                 .size(64.dp),
             painter = painterResource(Avatars.entries[data.avatarIndex].res),
             contentDescription = null

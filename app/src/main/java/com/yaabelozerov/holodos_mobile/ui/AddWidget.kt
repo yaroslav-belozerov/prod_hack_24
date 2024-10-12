@@ -32,8 +32,8 @@ fun AddWidget(onDismissRequest: () -> Unit) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(300.dp)
-                .padding(32.dp),
+                .height(350.dp)
+                .padding(16.dp),
         ) {
             Column(
                 modifier = Modifier
@@ -53,16 +53,16 @@ fun AddWidget(onDismissRequest: () -> Unit) {
                         value = productName,
                         onValueChange = { productName = it },
                         label = { Text(stringResource(R.string.productName)) },
-                        modifier = Modifier.padding(32.dp)
+                        modifier = Modifier.padding(16.dp)
                     )
                 }
-                Spacer(Modifier.size(32.dp))
+                Spacer(Modifier.size(2.dp))
                 Row {
                     TextField(
                         value = daysLeft,
                         onValueChange = { daysLeft = it },
                         label = { Text(stringResource(R.string.BestBeforeDays)) },
-                        modifier = Modifier.padding(32.dp)
+                        modifier = Modifier.padding(16.dp)
                     )
                 }
             }

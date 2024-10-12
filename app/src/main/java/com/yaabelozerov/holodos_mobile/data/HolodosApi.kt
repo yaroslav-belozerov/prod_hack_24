@@ -25,7 +25,7 @@ class HolodosApi(private val retrofit: Retrofit, private val dataStoreManager: A
         TODO("Not yet implemented")
     }
 
-    override fun getUsers(): List<UserDTO> {
+    override fun getUsers(id: Long): List<UserDTO> {
         TODO("Not yet implemented")
     }
 }

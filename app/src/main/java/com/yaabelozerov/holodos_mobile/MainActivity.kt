@@ -35,10 +35,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.yaabelozerov.holodos_mobile.domain.MainScreenViewModel
 import com.yaabelozerov.holodos_mobile.domain.SettingsScreenViewModel
+import com.yaabelozerov.holodos_mobile.mock.MockApi
 import com.yaabelozerov.holodos_mobile.ui.MainPage
 import com.yaabelozerov.holodos_mobile.ui.Navigation
 import com.yaabelozerov.holodos_mobile.ui.SettingsPage
 import com.yaabelozerov.holodos_mobile.ui.AddWidget
+import com.yaabelozerov.holodos_mobile.ui.AuthPage
 import com.yaabelozerov.holodos_mobile.ui.theme.Holodos_mobileTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -55,85 +57,94 @@ class MainActivity : AppCompatActivity() {
         setContent {
             val navController = rememberNavController()
             var addWidgetOpen by remember { mutableStateOf(false) }
+            var firstTime: Boolean = true
 
             Holodos_mobileTheme {
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    bottomBar = {
-                        NavigationBar {
-                            val navBackStackEntry by navController.currentBackStackEntryAsState()
-                            val currentDestination = navBackStackEntry?.destination
-                            Navigation.entries.forEach { screen ->
-                                val selected =
-                                    currentDestination?.hierarchy?.any { it.route == screen.route } == true
-                                NavigationBarItem(selected = selected, onClick = {
-                                    navController.popBackStack(
-                                        screen.route, inclusive = true, saveState = true
-                                    )
-                                    navController.navigate(screen.route)
-                                }, icon = {
-                                    Icon(
-                                        imageVector = if (selected) screen.filled else screen.outlined,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = if (!selected) Modifier.alpha(0.4f) else Modifier
-                                    )
-                                })
+                if (!firstTime) {
+                    Scaffold(
+                        modifier = Modifier.fillMaxSize(),
+                        bottomBar = {
+                            NavigationBar {
+                                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                                val currentDestination = navBackStackEntry?.destination
+                                Navigation.entries.forEach { screen ->
+                                    val selected =
+                                        currentDestination?.hierarchy?.any { it.route == screen.route } == true
+                                    NavigationBarItem(selected = selected, onClick = {
+                                        navController.popBackStack(
+                                            screen.route, inclusive = true, saveState = true
+                                        )
+                                        navController.navigate(screen.route)
+                                    }, icon = {
+                                        Icon(
+                                            imageVector = if (selected) screen.filled else screen.outlined,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = if (!selected) Modifier.alpha(0.4f) else Modifier
+                                        )
+                                    })
+                                }
+                            }
+                        },
+                        topBar = {
+                            CenterAlignedTopAppBar(
+                                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    titleContentColor = MaterialTheme.colorScheme.primary
+                                ),
+                                title = {
+                                    val navigation = Navigation.entries.find {
+                                        it.route == navController.currentBackStackEntryAsState().value?.destination?.route
+                                    }
+                                    if (navigation != null) {
+                                        Text(
+                                            text = stringResource(navigation.title)
+                                        )
+                                    }
+                                }
+                            )
+                        },
+                        floatingActionButton = {
+                            FloatingActionButton(
+                                onClick = {
+                                    addWidgetOpen = true
+                                }
+                            ) {
+                                Icon(Icons.Filled.Add, "Add Product")
+                            }
+                            if (addWidgetOpen) AddWidget {
+                                addWidgetOpen = false
                             }
                         }
-                    },
-                    topBar = {
-                        CenterAlignedTopAppBar(
-                            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                titleContentColor = MaterialTheme.colorScheme.primary
-                            ),
-                            title = {
-                                val navigation = Navigation.entries.find {
-                                    it.route == navController.currentBackStackEntryAsState().value?.destination?.route
-                                }
-                                if (navigation != null) {
-                                    Text(
-                                        text = stringResource(navigation.title)
-                                    )
-                                }
-                            }
-                        )
-                    },
-                    floatingActionButton = {
-                        FloatingActionButton(
-                            onClick = {
-                                addWidgetOpen = true
-                            }
+                    ) { innerPadding ->
+                        NavHost(
+                            modifier = Modifier.padding(innerPadding),
+                            navController = navController,
+                            startDestination = Navigation.FRIDGE.route
                         ) {
-                            Icon(Icons.Filled.Add, "Add Product")
-                        }
-                        if (addWidgetOpen) AddWidget {
-                            addWidgetOpen = false
+                            composable(Navigation.SETTINGS.route) {
+                                val user = settingsViewModel.users.collectAsState().value
+                                SettingsPage(settingsViewModel, user)
+                            }
+                            composable(Navigation.FRIDGE.route) {
+                                Column {
+
+                                    val items = mainViewModel.items.collectAsState().value
+                                    MainPage(items.map { Triple(it.name, it.daysUntilExpiry, it.quantity) })
+                                }
+                            }
+                            composable(Navigation.LIST.route) {
+                                Text("Shopping List")
+                            }
                         }
                     }
-                ) { innerPadding ->
-                    NavHost(
-                        modifier = Modifier.padding(innerPadding),
-                        navController = navController,
-                        startDestination = Navigation.FRIDGE.route
-                    ) {
-                        composable(Navigation.SETTINGS.route) {
-                            val users = settingsViewModel.users.collectAsState().value
-                            SettingsPage(settingsViewModel, users)
-                        }
-                        composable(Navigation.FRIDGE.route) {
-                            Column {
-
-                                val items = mainViewModel.items.collectAsState().value
-                                MainPage(items.map { Triple(it.name, it.daysUntilExpiry, it.quantity) })
-                            }
-                        }
-                        composable(Navigation.LIST.route) {
-                            Text("Shopping List")
-                        }
+                } else {
+                    Scaffold {
+                        AuthPage { settingsViewModel.login(it) }
                     }
                 }
+
+
             }
         }
     }

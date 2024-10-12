@@ -23,7 +23,7 @@ class MainScreenViewModel @Inject constructor(private val itemApi: HolodosServic
     fun fetchItems() {
         viewModelScope.launch {
             _items.update {
-                itemApi.getFridgeItems()
+                itemApi.getProductsByHolodos(itemApi.getHolodosByUserId(0).id)
             }
         }
     }

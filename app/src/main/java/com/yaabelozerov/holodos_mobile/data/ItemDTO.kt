@@ -5,4 +5,14 @@ data class ItemDTO(
     val name: String,
     val daysUntilExpiry: Int,
     val quantity: Int,
+    val holodosId: Long
+)
+
+data class HolodosDTO(
+    val id: Long,
+    val name: String
+)
+
+data class GroupDTO(
+    val users: List<UserDTO>
 )

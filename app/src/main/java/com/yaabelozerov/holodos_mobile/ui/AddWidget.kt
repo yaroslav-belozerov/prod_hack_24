@@ -44,7 +44,7 @@ import com.yaabelozerov.holodos_mobile.data.ItemDTO
 @Composable
 fun AddWidget(onSave: (ItemDTO) -> Unit, onDismissRequest: () -> Unit) {
     Dialog(onDismissRequest = { onDismissRequest() }) {
-        var item by remember { mutableStateOf(ItemDTO(-1, "", 0, 1)) }
+        var item by remember { mutableStateOf(ItemDTO(-1, "", 0, 1, -1)) }
         Card(
             modifier = Modifier
                 .fillMaxWidth()

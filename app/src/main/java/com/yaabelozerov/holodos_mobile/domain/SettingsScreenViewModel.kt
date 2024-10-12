@@ -72,6 +72,13 @@ class SettingsScreenViewModel @Inject constructor(private val api: HolodosServic
         }
     }
 
+    fun addUser(dto: UserDTO) {
+        viewModelScope.launch {
+            api.addUser(dto)
+            fetchUsers(currentId.value!!)
+        }
+    }
+
     fun login(number: String) {
         viewModelScope.launch {
             _currentId.update {

@@ -150,7 +150,9 @@ class MainActivity : AppCompatActivity() {
                             ) {
                                 composable(Navigation.SETTINGS.route) {
                                     val user = settingsViewModel.users.collectAsState().value
-                                    SettingsPage(settingsViewModel, user)
+                                    SettingsPage(settingsViewModel, user, onAddUser = {
+                                        settingsViewModel.addUser(it)
+                                    })
                                 }
                                 composable(Navigation.FRIDGE.route) {
                                     val items = mainViewModel.items.collectAsState().value

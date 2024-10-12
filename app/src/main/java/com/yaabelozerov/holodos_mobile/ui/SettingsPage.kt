@@ -55,13 +55,14 @@ import com.yaabelozerov.holodos_mobile.data.UserDTO
 import com.yaabelozerov.holodos_mobile.domain.SettingsScreenViewModel
 
 @Composable
-fun SettingsPage(settingsViewModel: SettingsScreenViewModel, users: List<UserDTO>) {
+fun SettingsPage(settingsViewModel: SettingsScreenViewModel, users: List<UserDTO>, onAddUser: (UserDTO) -> Unit) {
     var notificationsOn by remember { mutableStateOf(true) }
+    var createDialogOpen by remember { mutableStateOf(false) }
     Column(
         Modifier.padding(16.dp)
     ) {
         LazyRow(
-            modifier = Modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)
+            modifier = Modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically
         ) {
             items(users) {
                 AvatarContainer(
@@ -73,7 +74,7 @@ fun SettingsPage(settingsViewModel: SettingsScreenViewModel, users: List<UserDTO
             item {
                 Box(modifier = Modifier
                     .clip(CircleShape)
-                    .clickable { }
+                    .clickable { createDialogOpen = true }
                     .size(64.dp)) {
                     Icon(
                         Icons.Filled.AddCircle,
@@ -102,6 +103,58 @@ fun SettingsPage(settingsViewModel: SettingsScreenViewModel, users: List<UserDTO
                 }, modifier = Modifier.padding(16.dp)
 
             )
+        }
+    }
+
+    var newData by remember { mutableStateOf(UserDTO(-1, "", "", "", 0)) }
+    if (createDialogOpen) Dialog(
+        onDismissRequest = { createDialogOpen = false },
+    ) {
+        Card {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Avatars.entries.map {
+                        Card(
+                            onClick = { newData = newData.copy(avatarIndex = it.ordinal) },
+                            modifier = Modifier.border(
+                                2.dp,
+                                if (it.ordinal == newData.avatarIndex) MaterialTheme.colorScheme.primary else Color.Transparent,
+                                MaterialTheme.shapes.medium
+                            )
+                        ) {
+                            Image(
+                                painterResource(it.res), null,
+                                Modifier
+                                    .padding(16.dp)
+                                    .size(32.dp)
+                            )
+                        }
+                    }
+                }
+                OutlinedTextField(
+                    newData.name,
+                    { newData = newData.copy(name = it) },
+                    Modifier.padding(16.dp),
+                    singleLine = true
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(onClick = {
+                        createDialogOpen = false
+                    }) { Text(stringResource(R.string.cancel)) }
+                    Button(modifier = Modifier.weight(1f), onClick = {
+                        onAddUser(newData)
+                        createDialogOpen = false
+                    }) {
+                        Text(
+                            stringResource(R.string.save)
+                        )
+                    }
+                }
+            }
         }
     }
 }

@@ -132,7 +132,7 @@ class MainActivity : AppCompatActivity() {
                             Column {
 
                                 val items = mvm.items.collectAsState().value
-                                MainPage(items.map { Pair(it.name, it.daysUntilExpiry) })
+                                MainPage(items.map { Triple(it.name, it.daysUntilExpiry, it.quantity) })
                             }
                         }
                         composable(Navigation.LIST.route) {

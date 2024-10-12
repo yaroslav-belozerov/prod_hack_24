@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.update
 class MockApi: HolodosService {
     val items = mutableListOf(ItemDTO(0,"Молоко", 5, 1),
         ItemDTO(1,"Дедлайн", -1, 1),
-        ItemDTO(2,"Ярослва", 1, 1),
+        ItemDTO(2,"Ярослав", 1, 1),
         ItemDTO(32,"Вайбы", 77, 1))
     val users = mutableListOf<UserDTO>(
         UserDTO(0, "asdasd", "Asdasd", "Asdasd", 0),

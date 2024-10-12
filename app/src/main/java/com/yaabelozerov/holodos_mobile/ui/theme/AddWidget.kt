@@ -33,7 +33,7 @@ fun AddWidget(onDismissRequest: () -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(300.dp)
-                .padding(16.dp),
+                .padding(32.dp),
         ) {
             Column (
                 modifier = Modifier

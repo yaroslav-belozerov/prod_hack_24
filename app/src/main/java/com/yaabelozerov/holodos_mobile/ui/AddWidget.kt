@@ -35,7 +35,7 @@ fun AddWidget(onDismissRequest: () -> Unit) {
                 .height(300.dp)
                 .padding(32.dp),
         ) {
-            Column (
+            Column(
                 modifier = Modifier
                     .padding(8.dp)
             ) {
@@ -52,7 +52,8 @@ fun AddWidget(onDismissRequest: () -> Unit) {
                     TextField(
                         value = productName,
                         onValueChange = { productName = it },
-                        label = { Text(stringResource(R.string.productName)) }
+                        label = { Text(stringResource(R.string.productName)) },
+                        modifier = Modifier.padding(32.dp)
                     )
                 }
                 Spacer(Modifier.size(32.dp))
@@ -60,7 +61,8 @@ fun AddWidget(onDismissRequest: () -> Unit) {
                     TextField(
                         value = daysLeft,
                         onValueChange = { daysLeft = it },
-                        label = { Text(stringResource(R.string.BestBeforeDays)) }
+                        label = { Text(stringResource(R.string.BestBeforeDays)) },
+                        modifier = Modifier.padding(32.dp)
                     )
                 }
             }

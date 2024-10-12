@@ -7,8 +7,3 @@ data class UserDTO(
     val password: String,
     val avatarIndex: Int
 )
-
-data class LoginDTO(
-    val email: String,
-    val password: String
-)

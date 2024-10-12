@@ -1,7 +1,6 @@
 package com.yaabelozerov.holodos_mobile.mock
 
 import com.yaabelozerov.holodos_mobile.data.ItemDTO
-import com.yaabelozerov.holodos_mobile.data.LoginDTO
 import com.yaabelozerov.holodos_mobile.data.UserDTO
 import com.yaabelozerov.holodos_mobile.domain.network.HolodosService
 
@@ -19,15 +18,11 @@ class MockApi: HolodosService {
         return items
     }
 
-    override suspend fun register(data: UserDTO): Long {
+    override suspend fun login(number: String): Long {
         return 0
     }
 
-    override suspend fun login(data: LoginDTO): String {
-        return "example_token"
-    }
-
-    override suspend fun addUer(data: UserDTO) {
+    override suspend fun addUser(data: UserDTO) {
         accounts = accounts.plus(data)
     }
 

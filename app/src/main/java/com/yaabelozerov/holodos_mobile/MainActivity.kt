@@ -50,8 +50,8 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-    private val mvm: MainScreenViewModel by viewModels()
-    private val svm: SettingsScreenViewModel by viewModels()
+    private val mainViewModel: MainScreenViewModel by viewModels()
+    private val settingsViewModel: SettingsScreenViewModel by viewModels()
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -95,12 +95,12 @@ class MainActivity : AppCompatActivity() {
                                 titleContentColor = MaterialTheme.colorScheme.primary
                             ),
                             title = {
-                                val navZalupa = Navigation.entries.find {
+                                val navigation = Navigation.entries.find {
                                     it.route == navController.currentBackStackEntryAsState().value?.destination?.route
                                 }
-                                if (navZalupa != null) {
+                                if (navigation != null) {
                                     Text(
-                                        text = stringResource(navZalupa.title)
+                                        text = stringResource(navigation.title)
                                     )
                                 }
                             }
@@ -125,13 +125,13 @@ class MainActivity : AppCompatActivity() {
                         startDestination = Navigation.FRIDGE.route
                     ) {
                         composable(Navigation.SETTINGS.route) {
-                            val user = svm.userState.collectAsState().value
-                            SettingsPage(user.avatarIndex, user.name)
+                            val user = settingsViewModel.userState.collectAsState().value
+                            SettingsPage(settingsViewModel, user)
                         }
                         composable(Navigation.FRIDGE.route) {
                             Column {
 
-                                val items = mvm.items.collectAsState().value
+                                val items = mainViewModel.items.collectAsState().value
                                 MainPage(items.map { Triple(it.name, it.daysUntilExpiry, it.quantity) })
                             }
                         }

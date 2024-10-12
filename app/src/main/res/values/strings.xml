@@ -8,4 +8,6 @@
     <string name="askAdd">Добавить продукт в холодильник</string>
     <string name="productName">Наименование</string>
     <string name="BestBeforeDays">Дней до истечения срока годности</string>
+    <string name="cancel">Отмена</string>
+    <string name="save">Сохранить</string>
 </resources>

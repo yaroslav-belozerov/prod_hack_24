@@ -29,4 +29,11 @@ class SettingsScreenViewModel @Inject constructor(private val api: HolodosServic
             }
         }
     }
+
+    fun updateUser(user: UserDTO) {
+        viewModelScope.launch {
+            api.updateUser(user)
+            fetchSettings()
+        }
+    }
 }

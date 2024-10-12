@@ -5,6 +5,7 @@ import com.yaabelozerov.holodos_mobile.data.LoginDTO
 import com.yaabelozerov.holodos_mobile.data.UserDTO
 import retrofit2.http.GET
 import retrofit2.http.Headers
+import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface HolodosService {
@@ -25,9 +26,6 @@ interface HolodosService {
     @GET("/api/users/{id}")
     suspend fun getUser(@Path("id") id: Long): UserDTO
 
-    @GET("/api/setName")
-    suspend fun setName(id: Long, name: String)
-
-    @GET("/api/setAvatarIndex")
-    suspend fun setAvatarIndex(id: Long, avatarIndex: Int)
+    @POST("/api/updateUser")
+    suspend fun updateUser(user: UserDTO)
 }

@@ -36,11 +36,8 @@ class MockApi: HolodosService {
         return users.find { it.id == id }!!
     }
 
-    override suspend fun setName(id: Long, name: String) {
-        return
-    }
-
-    override suspend fun setAvatarIndex(id: Long, avatarIndex: Int) {
-        return
+    override suspend fun updateUser(user: UserDTO) {
+        val u = users.indexOfFirst { it.id == user.id }
+        users[u] = user
     }
 }

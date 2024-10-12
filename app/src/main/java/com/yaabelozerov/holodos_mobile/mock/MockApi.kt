@@ -4,16 +4,15 @@ import com.yaabelozerov.holodos_mobile.data.ItemDTO
 import com.yaabelozerov.holodos_mobile.data.LoginDTO
 import com.yaabelozerov.holodos_mobile.data.UserDTO
 import com.yaabelozerov.holodos_mobile.domain.network.HolodosService
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
 
 class MockApi: HolodosService {
     val items = mutableListOf(ItemDTO(0,"Молоко", 5, 1),
         ItemDTO(1,"Дедлайн", -1, 1),
         ItemDTO(2,"Ярослав", 1, 1),
         ItemDTO(32,"Вайбы", 77, 1))
-    val users = mutableListOf<UserDTO>(
+    var accounts = listOf<UserDTO>(
         UserDTO(0, "asdasd", "Asdasd", "Asdasd", 0),
+        UserDTO(1, "asddcccc", "mmmmmm", "Asdasd", 0),
     )
 
     override suspend fun getFridgeItems(): List<ItemDTO> {
@@ -29,15 +28,21 @@ class MockApi: HolodosService {
     }
 
     override suspend fun addUer(data: UserDTO) {
-        users.add(data)
+        accounts = accounts.plus(data)
     }
 
     override suspend fun getUser(id: Long): UserDTO {
-        return users.find { it.id == id }!!
+        return accounts.find { it.id == id }!!
     }
 
     override suspend fun updateUser(user: UserDTO) {
-        val u = users.indexOfFirst { it.id == user.id }
-        users[u] = user
+        val u = accounts.indexOfFirst { it.id == user.id }
+        val mut = accounts.toMutableList()
+        mut[u] = user
+        accounts = mut
+    }
+
+    override fun getUsers(): List<UserDTO> {
+        return accounts
     }
 }

@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -44,14 +45,14 @@ import com.yaabelozerov.holodos_mobile.data.UserDTO
 import com.yaabelozerov.holodos_mobile.domain.SettingsScreenViewModel
 
 @Composable
-fun SettingsPage(settingsViewModel: SettingsScreenViewModel, userDTO: UserDTO) {
+fun SettingsPage(settingsViewModel: SettingsScreenViewModel, users: List<UserDTO>) {
     var notificationsOn by remember { mutableStateOf(true) }
     Column {
         LazyRow(
             modifier = Modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            items(6) {
-                AvatarContainer({ settingsViewModel.updateUser(it) }, userDTO)
+            items(users) {
+                AvatarContainer({ settingsViewModel.updateUser(it) }, it)
             }
         }
         Row(verticalAlignment = Alignment.CenterVertically,

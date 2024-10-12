@@ -27,4 +27,8 @@ class HolodosApi(private val retrofit: Retrofit): HolodosService {
     override suspend fun updateUser(user: UserDTO) {
         TODO("Not yet implemented")
     }
+
+    override fun getUsers(): List<UserDTO> {
+        TODO("Not yet implemented")
+    }
 }

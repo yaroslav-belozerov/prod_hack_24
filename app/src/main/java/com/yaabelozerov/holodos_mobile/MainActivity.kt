@@ -119,8 +119,8 @@ class MainActivity : AppCompatActivity() {
                         startDestination = Navigation.FRIDGE.route
                     ) {
                         composable(Navigation.SETTINGS.route) {
-                            val user = settingsViewModel.userState.collectAsState().value
-                            SettingsPage(settingsViewModel, user)
+                            val users = settingsViewModel.users.collectAsState().value
+                            SettingsPage(settingsViewModel, users)
                         }
                         composable(Navigation.FRIDGE.route) {
                             Column {

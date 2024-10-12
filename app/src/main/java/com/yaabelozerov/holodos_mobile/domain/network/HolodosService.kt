@@ -28,4 +28,5 @@ interface HolodosService {
 
     @POST("/api/updateUser")
     suspend fun updateUser(user: UserDTO)
+    fun getUsers(): List<UserDTO>
 }

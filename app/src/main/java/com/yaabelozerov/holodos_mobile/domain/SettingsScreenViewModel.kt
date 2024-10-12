@@ -12,6 +12,12 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+data class LoginState(
+    val number: String,
+    val uid: Long,
+    val isLoggedIn: Boolean,
+)
+
 @HiltViewModel
 class SettingsScreenViewModel @Inject constructor(private val api: HolodosService, private val dataStoreManager: AppModule.DataStoreManager): ViewModel() {
     private val _users = MutableStateFlow(emptyList<UserDTO>())
@@ -23,7 +29,9 @@ class SettingsScreenViewModel @Inject constructor(private val api: HolodosServic
     fun login(number: String) {
         viewModelScope.launch {
             _currentId.update {
-                api.login(number)
+                val uid = api.login(number)
+                dataStoreManager.setUid(uid)
+                uid
             }
         }
     }

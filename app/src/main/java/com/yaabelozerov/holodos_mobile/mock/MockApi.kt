@@ -3,6 +3,7 @@ package com.yaabelozerov.holodos_mobile.mock
 import com.yaabelozerov.holodos_mobile.data.ItemDTO
 import com.yaabelozerov.holodos_mobile.data.UserDTO
 import com.yaabelozerov.holodos_mobile.domain.network.HolodosService
+import retrofit2.http.Path
 
 class MockApi: HolodosService {
     val items = mutableListOf(ItemDTO(0,"Молоко", 5, 1),
@@ -37,7 +38,7 @@ class MockApi: HolodosService {
         accounts = mut
     }
 
-    override fun getUsers(): List<UserDTO> {
+    override fun getUsers(id: Long): List<UserDTO> {
         return accounts
     }
 }

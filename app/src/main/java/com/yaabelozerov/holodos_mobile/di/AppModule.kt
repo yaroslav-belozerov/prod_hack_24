@@ -3,6 +3,7 @@ package com.yaabelozerov.holodos_mobile.di
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.squareup.moshi.Moshi
@@ -41,8 +42,8 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideItemApi(): HolodosService {
-        return if (C.IS_MOCK) MockApi() else HolodosApi(Retrofit.Builder().baseUrl(C.BASE_URL).build())
+    fun provideItemApi(dataStoreManager: DataStoreManager): HolodosService {
+        return if (C.IS_MOCK) MockApi() else HolodosApi(Retrofit.Builder().baseUrl(C.BASE_URL).build(), dataStoreManager)
     }
 
     private val Context.dataStore by preferencesDataStore("settings")
@@ -51,10 +52,10 @@ object AppModule {
     class DataStoreManager @Inject constructor(@ApplicationContext appContext: Context) {
         private val settingsDataStore = appContext.dataStore
 
-        private val tokenKey = stringPreferencesKey("token")
-        fun getToken(): Flow<String> = settingsDataStore.data.map { it[tokenKey] ?: "" }
-        suspend fun setToken(token: String) =
-            settingsDataStore.edit { it[tokenKey] = token }
+        private val uidKey = longPreferencesKey("uid")
+        fun getUid(): Flow<Long> = settingsDataStore.data.map { it[uidKey] ?: -1L }
+        suspend fun setUid(uid: Long) =
+            settingsDataStore.edit { it[uidKey] = uid }
 
         private val notifyKey = booleanPreferencesKey("notify")
         fun getNotify(): Flow<Boolean> = settingsDataStore.data.map { it[notifyKey] ?: false }

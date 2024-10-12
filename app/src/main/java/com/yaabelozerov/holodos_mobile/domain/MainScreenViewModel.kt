@@ -51,18 +51,16 @@ class MainScreenViewModel @Inject constructor(private val itemApi: HolodosServic
         fetchItems()
     }
 
-    fun removeItem(id: Long) {
-        viewModelScope.launch {
-            itemApi.deleteProductFromHolodos(id)
-            fetchItems()
-        }
-    }
-
-    fun incrementProductCount(id: Long) {
+    fun updateProductCount(id: Long, newCount: Int) {
         viewModelScope.launch {
             dataStoreManager.getUid().collect { uid ->
                 if (uid != -1L) {
-                    // TODO: increment product to holodos
+                    if (newCount <= 0) {
+                        itemApi.deleteProductFromHolodos(id)
+                    } else {
+                        itemApi.updateProductInHolodos(id, newCount)
+                    }
+                    fetchItems()
                 }
             }
         }

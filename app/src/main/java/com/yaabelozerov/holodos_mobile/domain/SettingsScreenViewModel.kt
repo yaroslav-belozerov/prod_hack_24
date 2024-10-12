@@ -8,6 +8,7 @@ import com.yaabelozerov.holodos_mobile.data.UserDTO
 import com.yaabelozerov.holodos_mobile.di.AppModule
 import com.yaabelozerov.holodos_mobile.domain.network.HolodosService
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -79,14 +80,19 @@ class SettingsScreenViewModel @Inject constructor(private val api: HolodosServic
         }
     }
 
+    private fun String.convertNumber(): String {
+        var num = this.replace(" ", "")
+        if (num.length == 10) return "+7${num}"
+        if (num.length == 11 && num[0] == '8') return "+7${num.substring(1)}"
+        return num
+    }
+
     fun login(number: String) {
         viewModelScope.launch {
-            _currentId.update {
-                val uid = api.login(number)
-                dataStoreManager.setUid(uid)
-                fetchUid()
-                uid
-            }
+            val uid = api.login(number.convertNumber().also { Log.i("converted_number", it) })
+            delay(1500)
+            dataStoreManager.setUid(uid)
+            fetchUid()
         }
     }
 

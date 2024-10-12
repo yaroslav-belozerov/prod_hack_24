@@ -41,7 +41,7 @@ fun QrPage(
     var text by remember { mutableStateOf(invalidStr) }
     Box(modifier = Modifier.fillMaxSize()) {
         val validStr = stringResource(R.string.valid_qr)
-        ScanQR(modifier = Modifier.padding(32.dp).border(4.dp, if (text.validQR()) MaterialTheme.colorScheme.primary else Color.Transparent, MaterialTheme.shapes.medium).clip(MaterialTheme.shapes.medium), hasPermission, onScan = {
+        if (hasPermission) ScanQR(modifier = Modifier.padding(32.dp).border(4.dp, if (text.validQR()) MaterialTheme.colorScheme.primary else Color.Transparent, MaterialTheme.shapes.medium).clip(MaterialTheme.shapes.medium), hasPermission, onScan = {
             text = it
         })
         Column(

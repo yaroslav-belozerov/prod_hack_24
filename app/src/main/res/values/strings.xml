@@ -21,4 +21,5 @@
     <string name="fill_in">Заполнить</string>
     <string name="valid_qr">QR-код действителен</string>
     <string name="invalid_qr">Не удалось распознать QR чека</string>
+    <string name="holodos">Holodos.</string>
 </resources>

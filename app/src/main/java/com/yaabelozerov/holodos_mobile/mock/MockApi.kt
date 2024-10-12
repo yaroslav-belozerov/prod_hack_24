@@ -7,19 +7,15 @@ import com.yaabelozerov.holodos_mobile.data.ItemDTO
 import com.yaabelozerov.holodos_mobile.data.SkuDTO
 import com.yaabelozerov.holodos_mobile.data.UserDTO
 import com.yaabelozerov.holodos_mobile.domain.network.HolodosService
-import okhttp3.Callback
-import okhttp3.MediaType
 import okhttp3.ResponseBody
 import retrofit2.Call
-import retrofit2.Response
 import retrofit2.Retrofit
-import retrofit2.http.Path
 
 class MockApi: HolodosService {
     val items = mutableListOf(ItemDTO(0,"Молоко", 5, 1, 2),
         ItemDTO(1,"Дедлайн", -1, 1, 2),
-        ItemDTO(2,"Ярослав", 1, 1, 2),
-        ItemDTO(32,"ВайбыВайбыВайбыВайбыВайбыВайбыВайбыВайбыВайбыВайбыВайбыВайбыВайбыВайбыВайбыВайбыВайбыВайбыВайбыВайбыВайбыВайбыВайбыВайбыВайбыВайбыВайбыВайбыВайбыВайбыВайбыВайбыВайбыВайбыВайбыВайбыВайбы", 77, 1, 2))
+        ItemDTO(2,"Проооод", 1, 1, 2),
+        ItemDTO(32,"Вайбы", 77, 1, 2))
     val cart = mutableListOf(SkuDTO(14,"Хлеб", "https://www.google.com/images/branding/googlelogo/2x/googlelogo_light_color_272x92dp.png", 5, 1),
         SkuDTO(4,"Рофлы", "https://www.google.com/images/branding/googlelogo/2x/googlelogo_light_color_272x92dp.png", 1, 5),
         SkuDTO(6,"Ярослав", "https://www.google.com/images/branding/googlelogo/2x/googlelogo_light_color_272x92dp.png", 1, 8),
@@ -87,6 +83,11 @@ class MockApi: HolodosService {
 
     override suspend fun getCartItems(): List<SkuDTO> {
         return cart
+    }
+
+    override suspend fun updateProductInHolodos(id: Long, count: Int) {
+        val ind = items.indexOfFirst { it.id == id }
+        items[ind] = items[ind].copy(quantity = count)
     }
 
     override suspend fun getUsers(id: Long): List<UserDTO> {

@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -22,7 +21,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -48,9 +46,9 @@ fun MainPage(
         }
         items(p) { item ->
             Product(item, onAdd = {
-                mainScreenViewModel.incrementProductCount(item.id)
+                mainScreenViewModel.updateProductCount(item.id, item.quantity + 1)
             }, onRemove = {
-                mainScreenViewModel.removeItem(item.id)
+                mainScreenViewModel.updateProductCount(item.id, item.quantity - 1)
             })
         }
         item {
@@ -78,7 +76,7 @@ fun Product(
             Text(
                 modifier = Modifier.weight(1f),
                 overflow = TextOverflow.Ellipsis,
-                maxLines = 2,
+                maxLines = 3,
                 text = item.name,
                 fontSize = 24.sp
             )
@@ -90,16 +88,16 @@ fun Product(
                     Text(
                         text = item.quantity.toString(),
                         fontSize = 20.sp,
-                        color = Color.Gray
-                    )
-                    Spacer(
-                        Modifier.size(2.dp)
+                        color = if (item.daysUntilExpiry > 0) MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f) else MaterialTheme.colorScheme.onBackground
                     )
                     Text(
                         text = "×",
                         fontSize = 20.sp,
-                        color = Color.Gray,
+                        color = if (item.daysUntilExpiry > 0) MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f) else MaterialTheme.colorScheme.onBackground,
                     )
+                    Spacer(Modifier.width(4.dp))
+                    OutlinedIconButton(onClick = { onAdd(item.id) }) { Icon(Icons.Default.Add, contentDescription = null) }
+                    OutlinedIconButton(onClick = { onRemove(item.id) }) { Icon(painterResource(R.drawable.remove), contentDescription = null) }
                 }
                 Text(
                     text = if (item.daysUntilExpiry > 0) item.daysUntilExpiry.toString() + " " + stringResource(R.string.days) else stringResource(
@@ -107,11 +105,6 @@ fun Product(
                     ),
                     fontSize = 20.sp
                 )
-            }
-            Spacer(modifier = Modifier.width(8.dp))
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                OutlinedIconButton(onClick = { onAdd(item.id) }) { Icon(Icons.Default.Add, contentDescription = null) }
-                OutlinedIconButton(onClick = { onRemove(item.id) }) { Icon(painterResource(R.drawable.remove), contentDescription = null) }
             }
         }
     }

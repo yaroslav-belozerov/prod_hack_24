@@ -8,7 +8,6 @@ import com.yaabelozerov.holodos_mobile.data.UserDTO
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.GET
-import retrofit2.http.Headers
 import retrofit2.http.POST
 import retrofit2.http.Path
 
@@ -51,4 +50,7 @@ interface HolodosService {
 
     @GET("/api/cartitems")
     suspend fun getCartItems(): List<SkuDTO>
+
+    @GET("TODO")
+    suspend fun updateProductInHolodos(id: Long, count: Int)
 }

@@ -38,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -61,13 +62,15 @@ import com.yaabelozerov.holodos_mobile.ui.ScanQR
 import com.yaabelozerov.holodos_mobile.ui.ShoppingListPage
 import com.yaabelozerov.holodos_mobile.ui.theme.Holodos_mobileTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private val mainViewModel: MainScreenViewModel by viewModels()
     private val settingsViewModel: SettingsScreenViewModel by viewModels()
     private val cartScreenViewModel: CartScreenViewModel by viewModels()
-    var shouldShowCamera: MutableState<Boolean> = mutableStateOf(false)
+    var shouldShowCamera: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,6 +82,7 @@ class MainActivity : AppCompatActivity() {
                 if (isGranted) {
                     // Permission granted: proceed with opening the camera
                     hasCameraPermission = true
+                    shouldShowCamera.update { true }
                 } else {
                     // Permission denied: inform the user to enable it through settings
                     Toast.makeText(
@@ -157,9 +161,8 @@ class MainActivity : AppCompatActivity() {
                                             cameraPermissionRequestLauncher.launch(android.Manifest.permission.CAMERA)
                                             navController.navigate(Navigation.SCAN.route)
                                         }) {
-                                            Icon(Icons.Filled.Add, "Add Product by QR")
+                                            Icon(painterResource(R.drawable.qr_code), "Add Product by QR")
                                         }
-
                                     }
                                 }
                                 else -> {}
@@ -211,7 +214,7 @@ class MainActivity : AppCompatActivity() {
                                     }
                                 }
                                 composable(Navigation.SCAN.route) {
-                                    QrPage(hasCameraPermission) {
+                                    QrPage(shouldShowCamera.collectAsState().value) {
                                         mainViewModel
                                     }
                                 }

@@ -112,7 +112,7 @@ fun Item (
 
             IconButton(onClick = {
                 item = item.copy(quantity = item.quantity - 1)
-            }) { Icon(Icons.Filled.KeyboardArrowDown, contentDescription = null) }
+            }, enabled = item.quantity > 0) { Icon(Icons.Filled.KeyboardArrowDown, contentDescription = null) }
 
             Spacer(modifier = Modifier.size(2.dp))
 
@@ -125,7 +125,7 @@ fun Item (
             IconButton(
                 onClick = {
                     item = item.copy(quantity = item.quantity + 1)
-                }, enabled = item.quantity > 0
+                }
             ) { Icon(Icons.Filled.KeyboardArrowUp, contentDescription = null) }
 
         }

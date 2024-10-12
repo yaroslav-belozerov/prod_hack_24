@@ -79,4 +79,5 @@ dependencies {
     implementation("com.squareup.moshi:moshi:1.15.1")
     implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
     implementation("androidx.navigation:navigation-compose:2.8.2")
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
 }

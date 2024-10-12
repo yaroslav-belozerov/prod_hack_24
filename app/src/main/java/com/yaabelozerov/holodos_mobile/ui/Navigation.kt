@@ -13,10 +13,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.yaabelozerov.holodos_mobile.R
 
 enum class Navigation(var route: String, val filled: ImageVector, val outlined: ImageVector, val title: Int, val showInNavBar: Boolean = true) {
+    LIST("List", Icons.Filled.ShoppingCart, Icons.Outlined.ShoppingCart, R.string.cart),
     FRIDGE(
         "Fridge", Icons.Filled.Home, Icons.Outlined.Home, R.string.fridge
     ),
-    LIST("List", Icons.Filled.ShoppingCart, Icons.Outlined.ShoppingCart, R.string.cart),
     SETTINGS("Group", Icons.Filled.Person, Icons.Outlined.Person, R.string.account),
     AUTH("Auth", Icons.Default.Person, Icons.Outlined.Person, R.string.auth, false)
 }

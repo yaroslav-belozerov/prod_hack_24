@@ -103,13 +103,20 @@ class MainActivity : AppCompatActivity() {
                                 }
                             })
                         }, floatingActionButton = {
-                            FloatingActionButton(onClick = {
-                                addWidgetOpen = true
-                            }) {
-                                Icon(Icons.Filled.Add, "Add Product")
-                            }
-                            if (addWidgetOpen) AddWidget(onSave = {}) {
-                                addWidgetOpen = false
+                            val navBackStackEntry by navController.currentBackStackEntryAsState()
+                            val currentDestination = navBackStackEntry?.destination
+                            when (currentDestination?.route) {
+                                Navigation.FRIDGE.route -> {
+                                    FloatingActionButton(onClick = {
+                                        addWidgetOpen = true
+                                    }) {
+                                        Icon(Icons.Filled.Add, "Add Product")
+                                    }
+                                    if (addWidgetOpen) AddWidget(onSave = {}) {
+                                        addWidgetOpen = false
+                                    }
+                                }
+                                else -> {}
                             }
                         }) { innerPadding ->
                             NavHost(

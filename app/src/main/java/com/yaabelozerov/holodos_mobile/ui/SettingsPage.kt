@@ -1,13 +1,17 @@
 package com.yaabelozerov.holodos_mobile.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,14 +26,21 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.yaabelozerov.holodos_mobile.Avatars
 import com.yaabelozerov.holodos_mobile.R
 
 @Composable
-fun SettingsPage(avatarId: Int, name: String) {
+fun SettingsPage(avatarInder: Int, name: String) {
     var notificationsOn by remember { mutableStateOf(true) }
     Column {
-        Image(modifier = Modifier.clip(CircleShape), painter = painterResource(avatarId), contentDescription = null)
-        Text(name)
+        LazyRow(modifier = Modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            items(6) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Image(modifier = Modifier.clip(CircleShape).background(MaterialTheme.colorScheme.surfaceContainer).size(64.dp), painter = painterResource(Avatars.entries[avatarInder].res), contentDescription = null)
+                    Text(name, fontSize = 20.sp)
+                }
+            }
+        }
         Row (
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier

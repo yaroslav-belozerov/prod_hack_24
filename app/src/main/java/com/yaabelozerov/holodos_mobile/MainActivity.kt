@@ -40,6 +40,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.yaabelozerov.holodos_mobile.domain.MainScreenViewModel
+import com.yaabelozerov.holodos_mobile.domain.SettingsScreenViewModel
 import com.yaabelozerov.holodos_mobile.ui.MainPage
 import com.yaabelozerov.holodos_mobile.ui.Navigation
 import com.yaabelozerov.holodos_mobile.ui.SettingsPage
@@ -50,6 +51,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private val mvm: MainScreenViewModel by viewModels()
+    private val svm: SettingsScreenViewModel by viewModels()
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -123,7 +125,8 @@ class MainActivity : AppCompatActivity() {
                         startDestination = Navigation.FRIDGE.route
                     ) {
                         composable(Navigation.SETTINGS.route) {
-                            SettingsPage()
+                            val user = svm.userState.collectAsState().value
+                            SettingsPage(user.avatarIndex, user.name)
                         }
                         composable(Navigation.FRIDGE.route) {
                             Column {

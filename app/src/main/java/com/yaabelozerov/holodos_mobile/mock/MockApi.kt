@@ -12,6 +12,7 @@ class MockApi: HolodosService {
         ItemDTO(1,"Говно", -1, 1),
         ItemDTO(2,"Ярослва", 1, 1),
         ItemDTO(32,"Бычья мошонка", 77, 1))
+//    val users = mutableMapOf<Long, Pair<Int, String>>()
     var currName = MutableStateFlow("Ярслав")
     var currAvatar = MutableStateFlow(0)
 

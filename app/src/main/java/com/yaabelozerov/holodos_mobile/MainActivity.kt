@@ -128,7 +128,6 @@ class MainActivity : AppCompatActivity() {
                             }
                             composable(Navigation.FRIDGE.route) {
                                 Column {
-
                                     val items = mainViewModel.items.collectAsState().value
                                     MainPage(items.map { Triple(it.name, it.daysUntilExpiry, it.quantity) })
                                 }
@@ -140,7 +139,15 @@ class MainActivity : AppCompatActivity() {
                     }
                 } else {
                     Scaffold { innerPadding ->
-                        AuthPage(modifier = Modifier.padding(innerPadding)) { settingsViewModel.login(it) }
+                        Column {
+                            AuthPage(modifier = Modifier.padding(innerPadding)) {
+                                settingsViewModel.login(
+                                    it
+                                )
+                            }
+                            val code = settingsViewModel.code.collectAsState().value
+                            Text(code.toString())
+                        }
                     }
                 }
 

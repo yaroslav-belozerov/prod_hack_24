@@ -2,6 +2,9 @@ package com.yaabelozerov.holodos_mobile.domain.network
 
 import com.yaabelozerov.holodos_mobile.data.ItemDTO
 import com.yaabelozerov.holodos_mobile.data.UserDTO
+import okhttp3.ResponseBody
+import retrofit2.Call
+import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.POST
@@ -9,6 +12,9 @@ import retrofit2.http.Path
 
 interface HolodosService {
     @Headers("Content-Type: application/json")
+
+    @GET("/api/status")
+    fun serverStatus(): Call<ResponseBody>
 
     @GET("/api/items")
     suspend fun getFridgeItems(): List<ItemDTO>

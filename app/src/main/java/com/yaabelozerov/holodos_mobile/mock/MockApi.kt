@@ -1,8 +1,15 @@
 package com.yaabelozerov.holodos_mobile.mock
 
+import com.yaabelozerov.holodos_mobile.C
 import com.yaabelozerov.holodos_mobile.data.ItemDTO
 import com.yaabelozerov.holodos_mobile.data.UserDTO
 import com.yaabelozerov.holodos_mobile.domain.network.HolodosService
+import okhttp3.Callback
+import okhttp3.MediaType
+import okhttp3.ResponseBody
+import retrofit2.Call
+import retrofit2.Response
+import retrofit2.Retrofit
 import retrofit2.http.Path
 
 class MockApi: HolodosService {
@@ -14,6 +21,11 @@ class MockApi: HolodosService {
         UserDTO(0, "asdasd", "Asdasd", "Asdasd", 0),
         UserDTO(1, "asddcccc", "mmmmmm", "Asdasd", 0),
     )
+
+    override fun serverStatus(): Call<ResponseBody> {
+        val retrofit = Retrofit.Builder().baseUrl(C.BASE_URL).build()
+        return retrofit.create(HolodosService::class.java).serverStatus()
+    }
 
     override suspend fun getFridgeItems(): List<ItemDTO> {
         return items

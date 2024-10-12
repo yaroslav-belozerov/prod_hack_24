@@ -139,8 +139,8 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                 } else {
-                    Scaffold {
-                        AuthPage { settingsViewModel.login(it) }
+                    Scaffold { innerPadding ->
+                        AuthPage(modifier = Modifier.padding(innerPadding)) { settingsViewModel.login(it) }
                     }
                 }
 

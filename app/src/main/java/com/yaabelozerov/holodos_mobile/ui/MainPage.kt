@@ -24,11 +24,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.yaabelozerov.holodos_mobile.R
+import com.yaabelozerov.holodos_mobile.data.ItemDTO
 
 
 @Composable
 fun MainPage(
-    products: List<Triple<String, Int, Int>>,
+    products: List<ItemDTO>,
     // onClick: () -> Unit
 ) {
     val p = products
@@ -42,7 +43,7 @@ fun MainPage(
     )  {
 
          items(p) {
-             Product(it.first, it.second, it.third)
+             Product(it.name, it.daysUntilExpiry, it.quantity)
              Spacer(Modifier.size(8.dp))
         }
     }

@@ -121,11 +121,7 @@ class MainActivity : AppCompatActivity() {
                                 composable(Navigation.FRIDGE.route) {
                                     Column {
                                         val items = mainViewModel.items.collectAsState().value
-                                        MainPage(items.map {
-                                            Triple(
-                                                it.name, it.daysUntilExpiry, it.quantity
-                                            )
-                                        })
+                                        MainPage(items)
                                     }
                                 }
                                 composable(Navigation.LIST.route) {

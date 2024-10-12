@@ -50,14 +50,13 @@ fun AddWidget(onSave: (ItemDTO) -> Unit, onDismissRequest: () -> Unit) {
                 .fillMaxWidth()
         ) {
             Column(
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
                     text = stringResource(R.string.askAdd), style = TextStyle(
                         fontSize = 24.sp
                     ), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center
                 )
-                Spacer(Modifier.size(8.dp))
                 Row {
                     OutlinedTextField(
                         value = item.name,
@@ -67,7 +66,6 @@ fun AddWidget(onSave: (ItemDTO) -> Unit, onDismissRequest: () -> Unit) {
                         singleLine = true
                     )
                 }
-                Spacer(Modifier.height(8.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column {
                         Button(onClick = {

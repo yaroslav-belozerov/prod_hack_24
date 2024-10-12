@@ -2,7 +2,7 @@
     <string name="app_name">holodos_mobile</string>
     <string name="expired">Просрочено!</string>
     <string name="fridge">Holodos!</string>
-    <string name="settings">Настройки</string>
+    <string name="account">Аккаунт</string>
     <string name="cart">Корзина</string>
     <string name="notification">Уведомления</string>
     <string name="askAdd">Добавить продукт в холодильник</string>

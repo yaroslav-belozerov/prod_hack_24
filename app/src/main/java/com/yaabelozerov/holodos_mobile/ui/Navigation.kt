@@ -10,11 +10,10 @@ import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
 import com.yaabelozerov.holodos_mobile.R
 
 enum class Navigation(var route: String, val filled: ImageVector, val outlined: ImageVector, val title: Int, val showInNavBar: Boolean = true) {
-    SETTINGS("Settings", Icons.Filled.Settings, Icons.Outlined.Settings, R.string.settings),
+    SETTINGS("Group", Icons.Filled.Person, Icons.Outlined.Person, R.string.account),
     FRIDGE(
         "Fridge", Icons.Filled.Home, Icons.Outlined.Home, R.string.fridge
     ),

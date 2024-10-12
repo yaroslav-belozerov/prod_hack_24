@@ -29,7 +29,7 @@ import com.yaabelozerov.holodos_mobile.data.ItemDTO
 
 @Composable
 fun MainPage(
-    products: List<Triple<String, Int, Int>>
+    products: List<ItemDTO>
 ) {
     val p = products
     LazyColumn(
@@ -37,7 +37,7 @@ fun MainPage(
     )  {
 
          items(p) {
-             Product(it.first, it.second, it.third)
+             Product(it.name, it.daysUntilExpiry, it.quantity)
              Spacer(Modifier.size(8.dp))
         }
     }

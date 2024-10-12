@@ -1,5 +1,6 @@
 package com.yaabelozerov.holodos_mobile.ui
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,12 +34,17 @@ fun MainPage(
 ) {
     val p = products
     LazyColumn(
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier.padding(16.dp, 0.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     )  {
-
-         items(p) {
+        item {
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+        items(p) {
              Product(it.name, it.daysUntilExpiry, it.quantity)
-             Spacer(Modifier.size(8.dp))
+        }
+        item {
+            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }

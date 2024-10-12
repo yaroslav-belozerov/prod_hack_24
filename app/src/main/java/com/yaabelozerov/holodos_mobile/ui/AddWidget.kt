@@ -3,11 +3,13 @@ package com.yaabelozerov.holodos_mobile.ui
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -32,13 +34,14 @@ fun AddWidget(onDismissRequest: () -> Unit) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(350.dp)
+                .height(300.dp)
                 .padding(16.dp),
         ) {
             Column(
                 modifier = Modifier
-                    .padding(8.dp)
+                    .padding(16.dp)
             ) {
+                Spacer(Modifier.size(8.dp))
                 Text(
                     text = stringResource(R.string.askAdd),
                     style = TextStyle(
@@ -49,20 +52,21 @@ fun AddWidget(onDismissRequest: () -> Unit) {
                     textAlign = TextAlign.Center
                 )
                 Row {
-                    TextField(
+                    OutlinedTextField(
                         value = productName,
                         onValueChange = { productName = it },
                         label = { Text(stringResource(R.string.productName)) },
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(2.dp),
+                        singleLine = true
                     )
                 }
-                Spacer(Modifier.size(2.dp))
                 Row {
-                    TextField(
+                    OutlinedTextField(
                         value = daysLeft,
                         onValueChange = { daysLeft = it },
                         label = { Text(stringResource(R.string.BestBeforeDays)) },
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(2.dp),
+                        singleLine = true
                     )
                 }
             }

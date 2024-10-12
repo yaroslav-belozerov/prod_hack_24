@@ -44,7 +44,6 @@ fun MainPage(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         item {
-            ScanQR(true)
             Spacer(modifier = Modifier.height(8.dp))
         }
         items(p) { item ->

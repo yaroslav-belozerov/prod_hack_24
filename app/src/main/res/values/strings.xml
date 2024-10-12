@@ -4,4 +4,8 @@
     <string name="fridge">Holodos!</string>
     <string name="settings">Настройки</string>
     <string name="cart">Корзина</string>
+    <string name="notification">Уведомления</string>
+    <string name="askAdd">Добавить продукт в холодильник</string>
+    <string name="productName">Наименование</string>
+    <string name="BestBeforeDays">Дней до истечения срока годности</string>
 </resources>

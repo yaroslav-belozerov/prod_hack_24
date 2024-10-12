@@ -9,9 +9,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -23,6 +26,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
@@ -36,6 +42,8 @@ import com.yaabelozerov.holodos_mobile.di.appModule
 import com.yaabelozerov.holodos_mobile.domain.MainScreenViewModel
 import com.yaabelozerov.holodos_mobile.ui.MainPage
 import com.yaabelozerov.holodos_mobile.ui.Navigation
+import com.yaabelozerov.holodos_mobile.ui.SettingsPage
+import com.yaabelozerov.holodos_mobile.ui.theme.AddWidget
 import com.yaabelozerov.holodos_mobile.ui.theme.Holodos_mobileTheme
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.context.startKoin
@@ -54,6 +62,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val navController = rememberNavController()
+            var addWidgetOpen by remember { mutableStateOf(false) }
 
             Holodos_mobileTheme {
                 Scaffold(
@@ -98,6 +107,18 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         )
+                    },
+                    floatingActionButton = {
+                        FloatingActionButton(
+                            onClick = {
+                                addWidgetOpen = true
+                            }
+                        ) {
+                            Icon(Icons.Filled.Add, "Add Product")
+                        }
+                        if (addWidgetOpen) AddWidget {
+                            addWidgetOpen = false
+                        }
                     }
                 ) { innerPadding ->
                     NavHost(
@@ -106,10 +127,11 @@ class MainActivity : ComponentActivity() {
                         startDestination = Navigation.FRIDGE.route
                     ) {
                         composable(Navigation.SETTINGS.route) {
-                            Text("Settings")
+                            SettingsPage()
                         }
                         composable(Navigation.FRIDGE.route) {
                             Column {
+
                                 val items = mvm.items.collectAsState().value
                                 MainPage(items.map { Pair(it.name, it.daysUntilExpiry) })
                             }

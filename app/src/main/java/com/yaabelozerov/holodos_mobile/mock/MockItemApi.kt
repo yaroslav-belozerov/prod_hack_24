@@ -8,7 +8,7 @@ class MockItemApi: ItemService {
         return listOf(
             ItemDTO("Молоко", 5, 1),
             ItemDTO("Говно", -1, 1),
-            ItemDTO("Ярослва", 1, 1),
+            ItemDTO("Ярослав", 1, 1),
             ItemDTO("Бычья мошонка", 77, 1),
         )
     }

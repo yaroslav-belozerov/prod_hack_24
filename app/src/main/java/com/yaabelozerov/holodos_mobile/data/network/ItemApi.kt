@@ -9,4 +9,5 @@ class ItemApi(private val retrofit: Retrofit): ItemService {
     override suspend fun getFridgeItems(): List<ItemDTO> {
         return retrofit.create(ItemService::class.java).getFridgeItems()
     }
+
 }

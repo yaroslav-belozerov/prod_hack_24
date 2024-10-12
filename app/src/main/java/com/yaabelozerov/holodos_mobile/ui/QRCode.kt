@@ -8,11 +8,4 @@ import io.github.g00fy2.quickie.ScanQRCode
 fun GetQRCodeExample(
     QROK: Boolean
 ) {
-    val scanQrCodeLauncher = rememberLauncherForActivityResult(ScanQRCode()) {
-        result ->
-
-    }
-
-    Button(onClick = { scanQrCodeLauncher.launch(null) }) {
-        …
-    }
+}

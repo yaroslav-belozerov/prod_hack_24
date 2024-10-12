@@ -156,7 +156,7 @@ class MainActivity : AppCompatActivity() {
                                 }
                                 composable(Navigation.FRIDGE.route) {
                                     val items = mainViewModel.items.collectAsState().value
-                                    MainPage(items)
+                                    MainPage(mainViewModel, items)
 
                                     if (sortModal) ModalBottomSheet(onDismissRequest = { sortModal = false }) {
                                         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {

@@ -16,4 +16,5 @@
     <string name="by_expiry_date">По сроку годности</string>
     <string name="by_quantity">По количеству</string>
     <string name="sort">Сортировка</string>
+    <string name="days">дн.</string>
 </resources>

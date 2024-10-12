@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yaabelozerov.holodos_mobile.R
 import com.yaabelozerov.holodos_mobile.data.ItemDTO
+import com.yaabelozerov.holodos_mobile.di.AppModule
 import com.yaabelozerov.holodos_mobile.domain.network.HolodosService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +18,7 @@ enum class Sorting(val res: Int) {
 }
 
 @HiltViewModel
-class MainScreenViewModel @Inject constructor(private val itemApi: HolodosService): ViewModel() {
+class MainScreenViewModel @Inject constructor(private val itemApi: HolodosService, private val dataStoreManager: AppModule.DataStoreManager): ViewModel() {
     private val _items = MutableStateFlow(emptyList<ItemDTO>())
     val items = _items.asStateFlow()
 
@@ -30,12 +31,16 @@ class MainScreenViewModel @Inject constructor(private val itemApi: HolodosServic
 
     fun fetchItems() {
         viewModelScope.launch {
-            _items.update {
-                val items = itemApi.getProductsByHolodos(itemApi.getHolodosByUserId(0).id)
-                when (sort.value) {
-                    Sorting.EXPIRY_DATE -> items.sortedBy { it.daysUntilExpiry }
-                    Sorting.QUANTITY -> items.sortedBy { it.quantity }
-                    else -> items
+            dataStoreManager.getUid().collect { uid ->
+                if (uid != -1L) {
+                    _items.update {
+                        val items = itemApi.getProductsByHolodos(itemApi.getHolodosByUserId(uid).id)
+                        when (sort.value) {
+                            Sorting.EXPIRY_DATE -> items.sortedBy { it.daysUntilExpiry }
+                            Sorting.QUANTITY -> items.sortedBy { it.quantity }
+                            else -> items
+                        }
+                    }
                 }
             }
         }
@@ -44,5 +49,22 @@ class MainScreenViewModel @Inject constructor(private val itemApi: HolodosServic
     fun setSorting(sorting: Sorting) {
         _sort.update { sorting }
         fetchItems()
+    }
+
+    fun removeItem(id: Long) {
+        viewModelScope.launch {
+            itemApi.deleteProductFromHolodos(id)
+            fetchItems()
+        }
+    }
+
+    fun incrementProductCount(id: Long) {
+        viewModelScope.launch {
+            dataStoreManager.getUid().collect { uid ->
+                if (uid != -1L) {
+                    // TODO: increment product to holodos
+                }
+            }
+        }
     }
 }

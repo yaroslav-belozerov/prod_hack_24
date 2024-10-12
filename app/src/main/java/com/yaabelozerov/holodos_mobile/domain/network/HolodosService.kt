@@ -1,6 +1,7 @@
 package com.yaabelozerov.holodos_mobile.domain.network
 
 import com.yaabelozerov.holodos_mobile.data.ItemDTO
+import com.yaabelozerov.holodos_mobile.data.SkuDTO
 import com.yaabelozerov.holodos_mobile.data.UserDTO
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -32,5 +33,8 @@ interface HolodosService {
     suspend fun updateUser(user: UserDTO)
 
     @GET("/api/users/{id}")
-    fun getUsers(@Path("id") id: Long): List<UserDTO>
+    suspend fun getUsers(@Path("id") id: Long): List<UserDTO>
+
+    @GET("/api/cartitems")
+    suspend fun getCartItems(): List<SkuDTO>
 }

@@ -31,6 +31,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.yaabelozerov.holodos_mobile.R
+import com.yaabelozerov.holodos_mobile.domain.RussianNumberVisualTransformation
 
 
 @Composable
@@ -52,7 +53,9 @@ fun AuthPage(
             value = login,
             onValueChange = {login = it},
             label = { Text(stringResource(R.string.askPhoneNum)) },
-            maxLines = 1
+            maxLines = 1,
+            visualTransformation = RussianNumberVisualTransformation(),
+
         )
         Spacer(
             Modifier.size(16.dp)

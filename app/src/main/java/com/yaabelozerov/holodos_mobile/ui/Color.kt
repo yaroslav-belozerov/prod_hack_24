@@ -1,4 +1,4 @@
-package com.yaabelozerov.holodos_mobile.ui.theme
+package com.yaabelozerov.holodos_mobile.ui
 
 import androidx.compose.ui.graphics.Color
 

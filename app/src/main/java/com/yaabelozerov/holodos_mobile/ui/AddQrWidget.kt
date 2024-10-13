@@ -62,17 +62,9 @@ fun Item_(
 @Composable
 fun AddQrWidget(
     items: QRDTO,
-    onSave: (ItemDTO) -> Unit,
+    onSave: (QRDTO) -> Unit,
     onDismissRequest: () -> Unit
 ) {
-    Dialog(onDismissRequest = onDismissRequest) {
-        LazyColumn {
-            items(items.data?.json?.items!!) {
-                Item_(name = it.name, quantity = it.quantity)
-                Spacer(Modifier.size(8.dp))
-            }
 
-        }
-    }
 }
 

@@ -39,6 +39,9 @@ class MainScreenViewModel @Inject constructor(
     private val _sort = MutableStateFlow(Sorting.NONE)
     val sort = _sort.asStateFlow()
 
+    private val _qr = MutableStateFlow(QRDTO())
+    val qr = _qr.asStateFlow()
+
     init {
         fetchItems()
     }
@@ -77,6 +80,7 @@ class MainScreenViewModel @Inject constructor(
                                 p0: Call<List<HolodosResponse>>,
                                 p1: Response<List<HolodosResponse>>
                             ) {
+                                Log.e("response", p1.body().toString())
                                 if (p1.code() == 200) {
                                     if (p1.body()!!.isNotEmpty()) itemApi.getProducts(
                                         uid,
@@ -142,6 +146,9 @@ class MainScreenViewModel @Inject constructor(
             itemApi.getQrData(qr).enqueue(object : Callback<QRDTO> {
                 override fun onResponse(p0: Call<QRDTO>, p1: Response<QRDTO>) {
                     Log.i("getQrData", "${p1.code()} ${p1.message()}")
+                    if (p1.code() == 200) {
+                        _qr.update { p1.body()!! }
+                    }
                 }
 
                 override fun onFailure(p0: Call<QRDTO>, p1: Throwable) {

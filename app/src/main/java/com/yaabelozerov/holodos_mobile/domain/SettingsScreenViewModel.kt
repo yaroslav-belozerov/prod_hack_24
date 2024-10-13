@@ -313,6 +313,24 @@ class SettingsScreenViewModel @Inject constructor(
                                    })
                                 } else {
                                     _users.update { p1.body()!!.firstOrNull()?.users ?: emptyList() } // TODO cyclic holodos
+                                    api.getHolodosByUserId(uid).enqueue(object : Callback<List<HolodosResponse>> {
+                                        override fun onResponse(
+                                            p0: Call<List<HolodosResponse>>,
+                                            p1: Response<List<HolodosResponse>>
+                                        ) {
+                                            if (p1.code() == 200) {
+                                                _hol.update { p1.body()!!.firstOrNull() }
+                                            }
+                                        }
+
+                                        override fun onFailure(
+                                            p0: Call<List<HolodosResponse>>,
+                                            p1: Throwable
+                                        ) {
+                                            p1.printStackTrace()
+                                        }
+
+                                    })
                                     Log.d("users", "users: ${_users.value}")
                                 }
                             }

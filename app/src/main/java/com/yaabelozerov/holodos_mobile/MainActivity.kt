@@ -13,9 +13,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
@@ -43,6 +46,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -58,6 +62,7 @@ import com.yaabelozerov.holodos_mobile.ui.Navigation
 import com.yaabelozerov.holodos_mobile.ui.SettingsPage
 import com.yaabelozerov.holodos_mobile.ui.AddWidget
 import com.yaabelozerov.holodos_mobile.ui.AuthPage
+import com.yaabelozerov.holodos_mobile.ui.Item_
 import com.yaabelozerov.holodos_mobile.ui.QrPage
 import com.yaabelozerov.holodos_mobile.ui.ShoppingListPage
 import com.yaabelozerov.holodos_mobile.ui.theme.Holodos_mobileTheme
@@ -227,9 +232,18 @@ class MainActivity : AppCompatActivity() {
                                 }
                                 composable(Navigation.SCAN.route) {
                                     QrPage(shouldShowCamera.collectAsState().value) {
-
-                                        AddQrWidget(items = mainViewModel.getQrData(it), onSave = {},
-                                            onDismissRequest = {addQRWidgetOpen = true})
+                                        mainViewModel.getQrData(it)
+                                    }
+                                    if (addQRWidgetOpen) {
+                                        val items = mainViewModel.qr.collectAsState().value
+                                        Dialog(onDismissRequest = { addQRWidgetOpen = false }) {
+                                            LazyColumn {
+                                                items(items.data?.json?.items!!) {
+                                                    Item_(name = it.name, quantity = it.quantity)
+                                                    Spacer(Modifier.size(8.dp))
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }

@@ -44,7 +44,9 @@ import com.yaabelozerov.holodos_mobile.data.CreateUserDTO
 import com.yaabelozerov.holodos_mobile.data.HolodosResponse
 import com.yaabelozerov.holodos_mobile.data.ItemDTO
 import com.yaabelozerov.holodos_mobile.data.Owner
+import com.yaabelozerov.holodos_mobile.data.Sku
 import com.yaabelozerov.holodos_mobile.data.UserDTO
+import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
@@ -57,14 +59,16 @@ fun CreateUserDTO.toOwner(): Owner = Owner(
 @Composable
 fun AddWidget(onSave: (CreateProductDTO) -> Unit, holodos: HolodosResponse, user: CreateUserDTO, onDismissRequest: () -> Unit) {
     Dialog(onDismissRequest = { onDismissRequest() }) {
-        var item by remember { mutableStateOf(CreateProductDTO(null, sku = null, holodos, 0, "2024-10-13", user.toOwner())) }
+        var item by remember { mutableStateOf(CreateProductDTO(null, sku = null, holodos, 0, "2024-10-13T09:40:06.084+00:00", user.toOwner())) }
 
         val df = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-        val days = df.parse(item.dateMade!!).toInstant()
-        days.plusSeconds((item.sku!!.bestBeforeDays!! * 24 * 60 * 60).toLong())
+        val days = df.parse(item.dateMade!!.split("T").first()).toInstant()
+        days.plusSeconds((item.sku?.bestBeforeDays ?: 0).toLong() * 24 * 60 * 60)
         val expiryDate = LocalDateTime.ofInstant(days, java.util.TimeZone.getDefault().toZoneId())
         val now = LocalDateTime.now()
         var daysUntilExpiry by remember { mutableStateOf(ChronoUnit.DAYS.between(now, expiryDate)) }
+
+        var text by remember { mutableStateOf(item.sku?.name ?: "") }
 
         Card(
             modifier = Modifier
@@ -80,8 +84,8 @@ fun AddWidget(onSave: (CreateProductDTO) -> Unit, holodos: HolodosResponse, user
                 )
                 Row {
                     OutlinedTextField(
-                        value = item.sku!!.name!!,
-                        onValueChange = { item = item.copy(sku = item.sku!!.copy(name = it)) },
+                        value = text,
+                        onValueChange = { text = it },
                         label = { Text(stringResource(R.string.productName)) },
                         modifier = Modifier.padding(2.dp),
                         singleLine = true
@@ -113,7 +117,7 @@ fun AddWidget(onSave: (CreateProductDTO) -> Unit, holodos: HolodosResponse, user
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(onClick = onDismissRequest) { Text(stringResource(R.string.cancel)) }
                     Button(modifier = Modifier.weight(1f), onClick = {
-                        onSave(item.copy(dateMade = df.format(now.minusDays(daysUntilExpiry))))
+                        onSave(item.copy(dateMade = df.format(now.minusDays(daysUntilExpiry)), sku = item.sku?.copy(name = text) ?: Sku(name = text)))
                         onDismissRequest()
                     }) { Text(stringResource(R.string.save)) }
                 }

@@ -26,15 +26,23 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.type.TimeZone
 import com.yaabelozerov.holodos_mobile.R
+import com.yaabelozerov.holodos_mobile.data.CreateProductDTO
+import com.yaabelozerov.holodos_mobile.data.HolodosDTO
 import com.yaabelozerov.holodos_mobile.data.ItemDTO
 import com.yaabelozerov.holodos_mobile.domain.MainScreenViewModel
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
+import java.util.Locale
 
 
 @Composable
 fun MainPage(
     mainScreenViewModel: MainScreenViewModel,
-    products: List<ItemDTO>
+    holodosId: Long,
+    products: List<CreateProductDTO>
 ) {
     val p = products
     LazyColumn(
@@ -46,9 +54,9 @@ fun MainPage(
         }
         items(p) { item ->
             Product(item, onAdd = {
-                mainScreenViewModel.updateProductCount(item.id, item.quantity + 1)
+                mainScreenViewModel.updateProductCount(item, holodosId, item.quantity!! + 1)
             }, onRemove = {
-                mainScreenViewModel.updateProductCount(item.id, item.quantity - 1)
+                mainScreenViewModel.updateProductCount(item, holodosId, item.quantity!! - 1)
             })
         }
         item {
@@ -59,13 +67,19 @@ fun MainPage(
 
 @Composable
 fun Product(
-    item: ItemDTO,
+    item: CreateProductDTO,
     onAdd: (Long) -> Unit,
     onRemove: (Long) -> Unit
 ) {
+    val days = SimpleDateFormat("dd.MM.yyyy", Locale.US).parse(item.dateMade!!).toInstant()
+    days.plusSeconds((item.sku!!.bestBeforeDays!! * 24 * 60 * 60).toLong())
+    val expiryDate = LocalDateTime.ofInstant(days, java.util.TimeZone.getDefault().toZoneId())
+    val now = LocalDateTime.now()
+    val daysUntilExpiry = ChronoUnit.DAYS.between(now, expiryDate)
+
     Card(
         colors = CardDefaults.cardColors()
-            .copy(containerColor = if (item.daysUntilExpiry > 0) MaterialTheme.colorScheme.surfaceContainer else MaterialTheme.colorScheme.errorContainer),
+            .copy(containerColor = if (daysUntilExpiry > 0) MaterialTheme.colorScheme.surfaceContainer else MaterialTheme.colorScheme.errorContainer),
         modifier = Modifier
             .fillMaxWidth()
     ) {
@@ -77,7 +91,7 @@ fun Product(
                 modifier = Modifier.weight(1f),
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 3,
-                text = item.name,
+                text = item.quantity.toString(),
                 fontSize = 24.sp
             )
             Spacer(
@@ -88,19 +102,19 @@ fun Product(
                     Text(
                         text = item.quantity.toString(),
                         fontSize = 20.sp,
-                        color = if (item.daysUntilExpiry > 0) MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f) else MaterialTheme.colorScheme.onBackground
+                        color = if (daysUntilExpiry > 0) MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f) else MaterialTheme.colorScheme.onBackground
                     )
                     Text(
                         text = "×",
                         fontSize = 20.sp,
-                        color = if (item.daysUntilExpiry > 0) MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f) else MaterialTheme.colorScheme.onBackground,
+                        color = if (daysUntilExpiry > 0) MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f) else MaterialTheme.colorScheme.onBackground,
                     )
                     Spacer(Modifier.width(4.dp))
-                    OutlinedIconButton(onClick = { onAdd(item.id) }) { Icon(Icons.Default.Add, contentDescription = null) }
-                    OutlinedIconButton(onClick = { onRemove(item.id) }) { Icon(painterResource(R.drawable.remove), contentDescription = null) }
+                    OutlinedIconButton(onClick = { onAdd(item.id!!) }) { Icon(Icons.Default.Add, contentDescription = null) }
+                    OutlinedIconButton(onClick = { onRemove(item.id!!) }) { Icon(painterResource(R.drawable.remove), contentDescription = null) }
                 }
                 Text(
-                    text = if (item.daysUntilExpiry > 0) item.daysUntilExpiry.toString() + " " + stringResource(R.string.days) else stringResource(
+                    text = if (daysUntilExpiry > 0) daysUntilExpiry.toString() + " " + stringResource(R.string.days) else stringResource(
                         R.string.expired
                     ),
                     fontSize = 20.sp

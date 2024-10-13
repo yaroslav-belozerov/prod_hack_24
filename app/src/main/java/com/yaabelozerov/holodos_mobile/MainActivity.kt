@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
@@ -115,11 +116,17 @@ class MainActivity : AppCompatActivity() {
                                         )
                                         navController.navigate(screen.route)
                                     }, icon = {
-                                        Icon(
+                                        if (screen.filled != null && screen.outlined != null) Icon(
                                             imageVector = if (selected) screen.filled else screen.outlined,
                                             contentDescription = null,
                                             tint = MaterialTheme.colorScheme.primary,
                                             modifier = if (!selected) Modifier.alpha(0.4f) else Modifier
+                                        )
+                                        if (screen.resFilled != null && screen.resOutlined != null) Icon(
+                                            painter = if (selected) painterResource(screen.resFilled) else painterResource(screen.resOutlined),
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = (if (!selected) Modifier.alpha(0.4f) else Modifier).then(Modifier.size(32.dp))
                                         )
                                     })
                                 }
@@ -175,13 +182,15 @@ class MainActivity : AppCompatActivity() {
                             ) {
                                 composable(Navigation.SETTINGS.route) {
                                     val user = settingsViewModel.users.collectAsState().value
-                                    SettingsPage(settingsViewModel, user, onAddUser = {
-                                        settingsViewModel.addUser(it)
+                                    SettingsPage(settingsViewModel, user, onAddUser = { phone, isSponsor ->
+                                        settingsViewModel.addUser(phone, isSponsor)
                                     })
                                 }
                                 composable(Navigation.FRIDGE.route) {
                                     val items = mainViewModel.items.collectAsState().value
-                                    MainPage(mainViewModel, items)
+                                    settingsViewModel.holId.collectAsState().value?.let {
+                                        MainPage(mainViewModel, it, items)
+                                    }
 
                                     if (sortModal) ModalBottomSheet(onDismissRequest = { sortModal = false }) {
                                         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -215,7 +224,7 @@ class MainActivity : AppCompatActivity() {
                                 }
                                 composable(Navigation.SCAN.route) {
                                     QrPage(shouldShowCamera.collectAsState().value) {
-                                        mainViewModel
+                                        mainViewModel.getQrData(it)
                                     }
                                 }
                             }

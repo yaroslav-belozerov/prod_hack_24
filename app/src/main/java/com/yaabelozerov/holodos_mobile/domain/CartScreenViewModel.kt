@@ -22,9 +22,7 @@ class CartScreenViewModel @Inject constructor(private val itemApi: HolodosServic
     }
     private fun fetchItems() {
         viewModelScope.launch {
-            _items.update {
-                itemApi.getCartItems()
-            }
+
         }
     }
 }

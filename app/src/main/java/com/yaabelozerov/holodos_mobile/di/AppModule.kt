@@ -9,7 +9,6 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.yaabelozerov.holodos_mobile.C
-import com.yaabelozerov.holodos_mobile.data.HolodosApi
 import com.yaabelozerov.holodos_mobile.domain.network.HolodosService
 import com.yaabelozerov.holodos_mobile.mock.MockApi
 import dagger.Module
@@ -20,6 +19,7 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import retrofit2.Retrofit
+import retrofit2.converter.moshi.MoshiConverterFactory
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -42,8 +42,8 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideItemApi(dataStoreManager: DataStoreManager): HolodosService {
-        return if (C.IS_MOCK) MockApi() else HolodosApi(Retrofit.Builder().baseUrl(C.BASE_URL).build(), dataStoreManager)
+    fun provideItemApi(moshi: Moshi): HolodosService {
+        return Retrofit.Builder().baseUrl(C.BASE_URL).addConverterFactory(MoshiConverterFactory.create(moshi)).build().create(HolodosService::class.java)
     }
 
     private val Context.dataStore by preferencesDataStore("settings")

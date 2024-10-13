@@ -6,8 +6,8 @@ import kotlin.reflect.KClass
 
 sealed class C {
     companion object {
-        val BASE_URL = "http://51.250.11.131:8080/"
-        val IS_MOCK = true
+        val BASE_URL = "http://51.250.11.131:8080"
+        val IS_MOCK = false
     }
 }
 

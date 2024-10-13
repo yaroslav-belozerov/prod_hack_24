@@ -20,12 +20,14 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,16 +48,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.yaabelozerov.holodos_mobile.Avatars
 import com.yaabelozerov.holodos_mobile.R
+import com.yaabelozerov.holodos_mobile.data.CreateUserDTO
 import com.yaabelozerov.holodos_mobile.data.UserDTO
 import com.yaabelozerov.holodos_mobile.domain.SettingsScreenViewModel
 
 @Composable
-fun SettingsPage(settingsViewModel: SettingsScreenViewModel, users: List<UserDTO>, onAddUser: (UserDTO) -> Unit) {
+fun SettingsPage(settingsViewModel: SettingsScreenViewModel, users: List<CreateUserDTO>, onAddUser: (String, Boolean) -> Unit) {
     var notificationsOn by remember { mutableStateOf(true) }
     var createDialogOpen by remember { mutableStateOf(false) }
     Column(
@@ -67,7 +71,7 @@ fun SettingsPage(settingsViewModel: SettingsScreenViewModel, users: List<UserDTO
             items(users) {
                 AvatarContainer(
                     settingsViewModel.currentId.collectAsState().value,
-                    { settingsViewModel.updateUser(it) },
+                    { new -> settingsViewModel.updateUser(new) },
                     it
                 )
             }
@@ -106,7 +110,8 @@ fun SettingsPage(settingsViewModel: SettingsScreenViewModel, users: List<UserDTO
         }
     }
 
-    var newData by remember { mutableStateOf(UserDTO(-1, "", "", "", 0)) }
+    var phone by remember { mutableStateOf("") }
+    var isSponsor by remember { mutableStateOf(true) }
     if (createDialogOpen) Dialog(
         onDismissRequest = { createDialogOpen = false },
     ) {
@@ -117,36 +122,45 @@ fun SettingsPage(settingsViewModel: SettingsScreenViewModel, users: List<UserDTO
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    Avatars.entries.map {
-                        Card(
-                            onClick = { newData = newData.copy(avatarIndex = it.ordinal) },
-                            modifier = Modifier.border(
-                                2.dp,
-                                if (it.ordinal == newData.avatarIndex) MaterialTheme.colorScheme.primary else Color.Transparent,
-                                MaterialTheme.shapes.medium
-                            )
-                        ) {
-                            Image(
-                                painterResource(it.res), null,
-                                Modifier
-                                    .padding(16.dp)
-                                    .size(32.dp)
-                            )
-                        }
-                    }
+                    Text(stringResource(
+                        R.string.invite_user
+                    ), fontSize = 20.sp)
+//                    Avatars.entries.map {
+//                        Card(
+//                            onClick = { newData = newData.copy(avatarIndex = it.ordinal) },
+//                            modifier = Modifier.border(
+//                                2.dp,
+//                                if (it.ordinal == newData.avatarIndex) MaterialTheme.colorScheme.primary else Color.Transparent,
+//                                MaterialTheme.shapes.medium
+//                            )
+//                        ) {
+//                            Image(
+//                                painterResource(it.res), null,
+//                                Modifier
+//                                    .padding(16.dp)
+//                                    .size(32.dp)
+//                            )
+//                        }
+//                    }
                 }
                 OutlinedTextField(
-                    newData.name,
-                    { newData = newData.copy(name = it) },
+                    phone,
+                    { phone = it },
                     Modifier.padding(16.dp),
-                    singleLine = true
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                    label = { Text(stringResource(R.string.phone_num)) }
                 )
+                Row(modifier = Modifier.clickable { isSponsor = !isSponsor }, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Checkbox(isSponsor, onCheckedChange = { isSponsor = it })
+                    Text(stringResource(R.string.can_add_items))
+                }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(onClick = {
                         createDialogOpen = false
                     }) { Text(stringResource(R.string.cancel)) }
                     Button(modifier = Modifier.weight(1f), onClick = {
-                        onAddUser(newData)
+                        onAddUser(phone, isSponsor)
                         createDialogOpen = false
                     }) {
                         Text(
@@ -160,8 +174,7 @@ fun SettingsPage(settingsViewModel: SettingsScreenViewModel, users: List<UserDTO
 }
 
 @Composable
-fun AvatarContainer(currentId: Long?, onSave: (UserDTO) -> Unit, data: UserDTO) {
-    // TODO ux вы, блокировать едит других юзеров
+fun AvatarContainer(currentId: Long?, onSave: (CreateUserDTO) -> Unit, data: CreateUserDTO) {
     var openDialog by remember { mutableStateOf(false) }
     var newData by remember {
         mutableStateOf(data)
@@ -176,7 +189,9 @@ fun AvatarContainer(currentId: Long?, onSave: (UserDTO) -> Unit, data: UserDTO) 
                 ) {
                     Avatars.entries.map {
                         Card(
-                            onClick = { newData = newData.copy(avatarIndex = it.ordinal) },
+                            onClick = { newData = newData
+                                .copy(avatarIndex = it.ordinal)
+                                      },
                             modifier = Modifier.border(
                                 2.dp,
                                 if (it.ordinal == newData.avatarIndex) MaterialTheme.colorScheme.primary else Color.Transparent,
@@ -193,8 +208,14 @@ fun AvatarContainer(currentId: Long?, onSave: (UserDTO) -> Unit, data: UserDTO) 
                     }
                 }
                 OutlinedTextField(
-                    newData.name,
-                    { newData = newData.copy(name = it) },
+                    newData.firstName ?: "",
+                    { newData = newData.copy(firstName = it) },
+                    Modifier.padding(16.dp),
+                    singleLine = true
+                )
+                OutlinedTextField(
+                    newData.lastName ?: "",
+                    { newData = newData.copy(lastName = it) },
                     Modifier.padding(16.dp),
                     singleLine = true
                 )
@@ -228,9 +249,9 @@ fun AvatarContainer(currentId: Long?, onSave: (UserDTO) -> Unit, data: UserDTO) 
         verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Image(
             modifier = Modifier.size(64.dp),
-            painter = painterResource(Avatars.entries[data.avatarIndex].res),
+            painter = painterResource(Avatars.entries[data.avatarIndex ?: 0].res),
             contentDescription = null
         )
-        Text(data.name, fontSize = 20.sp)
+        Text(data.firstName ?: "", fontSize = 20.sp)
     }
 }

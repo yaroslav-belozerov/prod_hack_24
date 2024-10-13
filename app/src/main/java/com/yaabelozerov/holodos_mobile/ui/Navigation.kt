@@ -14,13 +14,13 @@ import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.yaabelozerov.holodos_mobile.R
 
-enum class Navigation(var route: String, val filled: ImageVector, val outlined: ImageVector, val title: Int, val showInNavBar: Boolean = true) {
-    LIST("List", Icons.Filled.ShoppingCart, Icons.Outlined.ShoppingCart, R.string.cart),
+enum class Navigation(var route: String, val filled: ImageVector? = null, val outlined: ImageVector? = null, val resFilled: Int? = null, val resOutlined: Int? = null, val title: Int, val showInNavBar: Boolean = true) {
+    LIST("List", Icons.Filled.ShoppingCart, Icons.Outlined.ShoppingCart, title =  R.string.cart),
     FRIDGE(
-        "Fridge", Icons.Filled.Home, Icons.Outlined.Home, R.string.fridge
+        "Fridge", resFilled = R.drawable.fridge_filled, resOutlined = R.drawable.firdge_outlined, title = R.string.fridge
     ),
-    SETTINGS("Group", Icons.Filled.Person, Icons.Outlined.Person, R.string.account),
-    AUTH("Auth", Icons.Default.Person, Icons.Outlined.Person, R.string.auth, false),
-    SCAN("Scan", Icons.Filled.Create, Icons.Outlined.Create, R.string.scan_qr, false)
+    SETTINGS("Group", Icons.Filled.Person, Icons.Outlined.Person, title=  R.string.account),
+    AUTH("Auth", Icons.Default.Person, Icons.Outlined.Person, title = R.string.auth, showInNavBar = false),
+    SCAN("Scan", Icons.Filled.Create, Icons.Outlined.Create, title =  R.string.scan_qr, showInNavBar = false)
 
 }

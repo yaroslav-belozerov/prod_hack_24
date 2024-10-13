@@ -20,6 +20,9 @@
     <string name="scan_qr">Сканировать Чек</string>
     <string name="fill_in">Заполнить</string>
     <string name="valid_qr">QR-код действителен</string>
-    <string name="invalid_qr">Не удалось распознать QR чека</string>
+    <string name="invalid_qr">Некорректный QR</string>
     <string name="holodos">Holodos.</string>
+    <string name="phone_num">Номер телефона</string>
+    <string name="invite_user">Пригласить пользователя</string>
+    <string name="can_add_items">Может добавлять предметы в корзину</string>
 </resources>

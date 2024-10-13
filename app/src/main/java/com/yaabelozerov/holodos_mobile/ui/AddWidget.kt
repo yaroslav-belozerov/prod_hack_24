@@ -1,5 +1,6 @@
 package com.yaabelozerov.holodos_mobile.ui
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -66,7 +67,7 @@ fun AddWidget(onSave: (CreateProductDTO) -> Unit, holodos: HolodosResponse, user
         days.plusSeconds((item.sku?.bestBeforeDays ?: 0).toLong() * 24 * 60 * 60)
         val expiryDate = LocalDateTime.ofInstant(days, java.util.TimeZone.getDefault().toZoneId())
         val now = LocalDateTime.now()
-        var daysUntilExpiry by remember { mutableStateOf(ChronoUnit.DAYS.between(now, expiryDate)) }
+        var daysUntilExpiry by remember { mutableStateOf(ChronoUnit.DAYS.between(now, expiryDate)) }.also { Log.i("days", it.value.toString()) }
 
         var text by remember { mutableStateOf(item.sku?.name ?: "") }
 
@@ -117,7 +118,7 @@ fun AddWidget(onSave: (CreateProductDTO) -> Unit, holodos: HolodosResponse, user
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(onClick = onDismissRequest) { Text(stringResource(R.string.cancel)) }
                     Button(modifier = Modifier.weight(1f), onClick = {
-                        onSave(item.copy(dateMade = df.format(now.minusDays(daysUntilExpiry)), sku = item.sku?.copy(name = text) ?: Sku(name = text)))
+                        onSave(item.copy(dateMade = now.minusDays(daysUntilExpiry).toString(), sku = item.sku?.copy(name = text) ?: Sku(name = text)))
                         onDismissRequest()
                     }) { Text(stringResource(R.string.save)) }
                 }

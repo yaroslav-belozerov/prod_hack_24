@@ -53,6 +53,7 @@ import com.yaabelozerov.holodos_mobile.domain.MainScreenViewModel
 import com.yaabelozerov.holodos_mobile.domain.QrCodeAnalizer
 import com.yaabelozerov.holodos_mobile.domain.SettingsScreenViewModel
 import com.yaabelozerov.holodos_mobile.domain.Sorting
+import com.yaabelozerov.holodos_mobile.ui.AddQrWidget
 import com.yaabelozerov.holodos_mobile.ui.MainPage
 import com.yaabelozerov.holodos_mobile.ui.Navigation
 import com.yaabelozerov.holodos_mobile.ui.SettingsPage
@@ -98,7 +99,7 @@ class MainActivity : AppCompatActivity() {
             val navController = rememberNavController()
             var addWidgetOpen by remember { mutableStateOf(false) }
             var sortModal by remember { mutableStateOf(false) }
-
+            var addQRWidgetOpen by remember { mutableStateOf(false) }
             Holodos_mobileTheme {
                 val l = settingsViewModel.loggedIn.collectAsState().value
                 if (l != null) {
@@ -224,7 +225,9 @@ class MainActivity : AppCompatActivity() {
                                 }
                                 composable(Navigation.SCAN.route) {
                                     QrPage(shouldShowCamera.collectAsState().value) {
-                                        mainViewModel.getQrData(it)
+
+                                        AddQrWidget(items = mainViewModel.getQrData(it), onSave = {},
+                                            onDismissRequest = {addQRWidgetOpen = true})
                                     }
                                 }
                             }

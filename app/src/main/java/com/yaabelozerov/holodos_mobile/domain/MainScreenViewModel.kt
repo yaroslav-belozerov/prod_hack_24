@@ -81,7 +81,7 @@ class MainScreenViewModel @Inject constructor(
         }
     }
 
-    fun getQrData(qr: String) {
+    fun getQrData(qr: String, ) {
         viewModelScope.launch {
             itemApi.getQrData(qr).enqueue(object : Callback<QRDTO> {
                 override fun onResponse(p0: Call<QRDTO>, p1: Response<QRDTO>) {

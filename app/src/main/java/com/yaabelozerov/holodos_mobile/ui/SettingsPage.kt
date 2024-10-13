@@ -1,7 +1,7 @@
 package com.yaabelozerov.holodos_mobile.ui
 
+import android.util.Log
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -9,30 +9,21 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -55,7 +46,6 @@ import androidx.compose.ui.window.Dialog
 import com.yaabelozerov.holodos_mobile.Avatars
 import com.yaabelozerov.holodos_mobile.R
 import com.yaabelozerov.holodos_mobile.data.CreateUserDTO
-import com.yaabelozerov.holodos_mobile.data.UserDTO
 import com.yaabelozerov.holodos_mobile.domain.SettingsScreenViewModel
 
 @Composable
@@ -70,7 +60,7 @@ fun SettingsPage(settingsViewModel: SettingsScreenViewModel, users: List<CreateU
         ) {
             items(users) {
                 AvatarContainer(
-                    settingsViewModel.currentId.collectAsState().value,
+                    settingsViewModel.current.collectAsState().value!!.id,
                     { new -> settingsViewModel.updateUser(new) },
                     it
                 )
@@ -189,9 +179,7 @@ fun AvatarContainer(currentId: Long?, onSave: (CreateUserDTO) -> Unit, data: Cre
                 ) {
                     Avatars.entries.map {
                         Card(
-                            onClick = { newData = newData
-                                .copy(avatarIndex = it.ordinal)
-                                      },
+                            onClick = { newData = newData.copy(avatarIndex = it.ordinal) },
                             modifier = Modifier.border(
                                 2.dp,
                                 if (it.ordinal == newData.avatarIndex) MaterialTheme.colorScheme.primary else Color.Transparent,
@@ -224,7 +212,7 @@ fun AvatarContainer(currentId: Long?, onSave: (CreateUserDTO) -> Unit, data: Cre
                         openDialog = false
                     }) { Text(stringResource(R.string.cancel)) }
                     Button(modifier = Modifier.weight(1f), onClick = {
-                        onSave(newData)
+                        onSave(newData).also { Log.i("newData", newData.toString()) }
                         openDialog = false
                     }) {
                         Text(

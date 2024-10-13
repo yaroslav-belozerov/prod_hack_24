@@ -1,6 +1,7 @@
 package com.yaabelozerov.holodos_mobile
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -31,7 +32,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,7 +50,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.yaabelozerov.holodos_mobile.domain.CartScreenViewModel
 import com.yaabelozerov.holodos_mobile.domain.MainScreenViewModel
-import com.yaabelozerov.holodos_mobile.domain.QrCodeAnalizer
 import com.yaabelozerov.holodos_mobile.domain.SettingsScreenViewModel
 import com.yaabelozerov.holodos_mobile.domain.Sorting
 import com.yaabelozerov.holodos_mobile.ui.AddQrWidget
@@ -60,7 +59,6 @@ import com.yaabelozerov.holodos_mobile.ui.SettingsPage
 import com.yaabelozerov.holodos_mobile.ui.AddWidget
 import com.yaabelozerov.holodos_mobile.ui.AuthPage
 import com.yaabelozerov.holodos_mobile.ui.QrPage
-import com.yaabelozerov.holodos_mobile.ui.ScanQR
 import com.yaabelozerov.holodos_mobile.ui.ShoppingListPage
 import com.yaabelozerov.holodos_mobile.ui.theme.Holodos_mobileTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -157,7 +155,11 @@ class MainActivity : AppCompatActivity() {
                                         }) {
                                             Icon(Icons.Filled.Add, "Add Product")
                                         }
-                                        if (addWidgetOpen) AddWidget(onSave = {}) {
+                                        val hol = settingsViewModel.hol.collectAsState().value.also { Log.i("hol", it.toString())}
+                                        val curr = settingsViewModel.current.collectAsState().value.also { Log.i("curr", it.toString()) }
+                                        if (addWidgetOpen && (hol != null && curr != null)) AddWidget(onSave = {
+                                            mainViewModel.createItem(it, settingsViewModel.hol.value!!.id!!)
+                                        }, holodos = hol, user = curr) {
                                             addWidgetOpen = false
                                         }
                                         FloatingActionButton(onClick = {
@@ -189,8 +191,8 @@ class MainActivity : AppCompatActivity() {
                                 }
                                 composable(Navigation.FRIDGE.route) {
                                     val items = mainViewModel.items.collectAsState().value
-                                    settingsViewModel.holId.collectAsState().value?.let {
-                                        MainPage(mainViewModel, it, items)
+                                    settingsViewModel.hol.collectAsState().value?.let {
+                                        MainPage(mainViewModel, it.id!!, items)
                                     }
 
                                     if (sortModal) ModalBottomSheet(onDismissRequest = { sortModal = false }) {

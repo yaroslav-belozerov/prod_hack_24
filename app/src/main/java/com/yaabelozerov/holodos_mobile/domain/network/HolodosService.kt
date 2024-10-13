@@ -76,7 +76,7 @@ interface HolodosService {
     @GET("/products/products")
     fun getProducts(@Query("userId") userId: Long, @Query("holodosId") holodosId: Long): Call<List<CreateProductDTO>>
 
-    @POST("/api/holodos")
+    @POST("/api/holodos/")
     fun createHolodos(@Body data: HolodosResponse): Call<HolodosResponse>
 
     @POST("/api/holodos/{id}/users")

@@ -39,12 +39,33 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.yaabelozerov.holodos_mobile.R
+import com.yaabelozerov.holodos_mobile.data.CreateProductDTO
+import com.yaabelozerov.holodos_mobile.data.CreateUserDTO
+import com.yaabelozerov.holodos_mobile.data.HolodosResponse
 import com.yaabelozerov.holodos_mobile.data.ItemDTO
+import com.yaabelozerov.holodos_mobile.data.Owner
+import com.yaabelozerov.holodos_mobile.data.UserDTO
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
+import java.util.Locale
+
+fun CreateUserDTO.toOwner(): Owner = Owner(
+    id, firstName, lastName, phone, holodoses, role
+)
 
 @Composable
-fun AddWidget(onSave: (ItemDTO) -> Unit, onDismissRequest: () -> Unit) {
+fun AddWidget(onSave: (CreateProductDTO) -> Unit, holodos: HolodosResponse, user: CreateUserDTO, onDismissRequest: () -> Unit) {
     Dialog(onDismissRequest = { onDismissRequest() }) {
-        var item by remember { mutableStateOf(ItemDTO(-1, "", 0, 1, -1)) }
+        var item by remember { mutableStateOf(CreateProductDTO(null, sku = null, holodos, 0, "2024-10-13", user.toOwner())) }
+
+        val df = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+        val days = df.parse(item.dateMade!!).toInstant()
+        days.plusSeconds((item.sku!!.bestBeforeDays!! * 24 * 60 * 60).toLong())
+        val expiryDate = LocalDateTime.ofInstant(days, java.util.TimeZone.getDefault().toZoneId())
+        val now = LocalDateTime.now()
+        var daysUntilExpiry by remember { mutableStateOf(ChronoUnit.DAYS.between(now, expiryDate)) }
+
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -59,8 +80,8 @@ fun AddWidget(onSave: (ItemDTO) -> Unit, onDismissRequest: () -> Unit) {
                 )
                 Row {
                     OutlinedTextField(
-                        value = item.name,
-                        onValueChange = { item = item.copy(name = it) },
+                        value = item.sku!!.name!!,
+                        onValueChange = { item = item.copy(sku = item.sku!!.copy(name = it)) },
                         label = { Text(stringResource(R.string.productName)) },
                         modifier = Modifier.padding(2.dp),
                         singleLine = true
@@ -69,19 +90,19 @@ fun AddWidget(onSave: (ItemDTO) -> Unit, onDismissRequest: () -> Unit) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column {
                         Button(onClick = {
-                            item = item.copy(daysUntilExpiry = item.daysUntilExpiry + 1)
+                            daysUntilExpiry += 1
                         }) { Icon(Icons.Filled.KeyboardArrowUp, contentDescription = null) }
                         Button(
                             onClick = {
-                                item = item.copy(daysUntilExpiry = item.daysUntilExpiry - 1)
-                            }, enabled = item.daysUntilExpiry > 0
+                                daysUntilExpiry += 1
+                            }, enabled = daysUntilExpiry > 0
                         ) { Icon(Icons.Filled.KeyboardArrowDown, contentDescription = null) }
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     OutlinedTextField(
-                        value = item.daysUntilExpiry.toString(),
+                        value = daysUntilExpiry.toString(),
                         onValueChange = {
-                            item = item.copy(daysUntilExpiry = it.toIntOrNull() ?: 0)
+                            daysUntilExpiry = (it.toIntOrNull() ?: 0).toLong()
                         },
                         label = { Text(stringResource(R.string.BestBeforeDays)) },
                         modifier = Modifier.padding(2.dp),
@@ -92,7 +113,7 @@ fun AddWidget(onSave: (ItemDTO) -> Unit, onDismissRequest: () -> Unit) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(onClick = onDismissRequest) { Text(stringResource(R.string.cancel)) }
                     Button(modifier = Modifier.weight(1f), onClick = {
-                        onSave(item)
+                        onSave(item.copy(dateMade = df.format(now.minusDays(daysUntilExpiry))))
                         onDismissRequest()
                     }) { Text(stringResource(R.string.save)) }
                 }

@@ -71,10 +71,8 @@ fun Product(
     onAdd: (Long) -> Unit,
     onRemove: (Long) -> Unit
 ) {
-    val days = SimpleDateFormat("dd.MM.yyyy", Locale.US).parse(item.dateMade!!)?.toInstant()
-    if (days != null) {
-        days.plusSeconds((item.sku!!.bestBeforeDays!! * 24 * 60 * 60).toLong())
-    }
+    val days = SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(item.dateMade!!).toInstant()
+    days.plusSeconds((item.sku!!.bestBeforeDays!! * 24 * 60 * 60).toLong())
     val expiryDate = LocalDateTime.ofInstant(days, java.util.TimeZone.getDefault().toZoneId())
     val now = LocalDateTime.now()
     val daysUntilExpiry = ChronoUnit.DAYS.between(now, expiryDate)

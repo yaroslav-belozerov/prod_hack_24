@@ -71,11 +71,12 @@ fun Product(
     onAdd: (Long) -> Unit,
     onRemove: (Long) -> Unit
 ) {
-    val days = SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(item.dateMade!!).toInstant()
-    days.plusSeconds(((item.sku?.bestBeforeDays ?: 0) * 24 * 60 * 60).toLong())
-    val expiryDate = LocalDateTime.ofInstant(days, java.util.TimeZone.getDefault().toZoneId())
-    val now = LocalDateTime.now()
-    val daysUntilExpiry = ChronoUnit.DAYS.between(now, expiryDate)
+//    val days = SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(item.dateMade!!).toInstant()
+//    days.plusSeconds(((item.sku?.bestBeforeDays ?: 0) * 24 * 60 * 60).toLong())
+//    val expiryDate = LocalDateTime.ofInstant(days, java.util.TimeZone.getDefault().toZoneId())
+//    val now = LocalDateTime.now()
+//    val daysUntilExpiry = ChronoUnit.DAYS.between(now, expiryDate)
+    val daysUntilExpiry = item.dateMade!!.toInt()
 
     Card(
         colors = CardDefaults.cardColors()
@@ -91,7 +92,7 @@ fun Product(
                 modifier = Modifier.weight(1f),
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 3,
-                text = item.quantity.toString(),
+                text = item.sku?.name ?: "",
                 fontSize = 24.sp
             )
             Spacer(

@@ -52,6 +52,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.yaabelozerov.holodos_mobile.data.SkuDTO
 import com.yaabelozerov.holodos_mobile.domain.CartScreenViewModel
 import com.yaabelozerov.holodos_mobile.domain.MainScreenViewModel
 import com.yaabelozerov.holodos_mobile.domain.SettingsScreenViewModel
@@ -162,8 +163,8 @@ class MainActivity : AppCompatActivity() {
                                         }
                                         val hol = settingsViewModel.hol.collectAsState().value.also { Log.i("hol", it.toString())}
                                         val curr = settingsViewModel.current.collectAsState().value.also { Log.i("curr", it.toString()) }
-                                        if (addWidgetOpen && (hol != null && curr != null)) AddWidget(onSave = {
-                                            mainViewModel.createItem(it, settingsViewModel.hol.value!!.id!!)
+                                        if (addWidgetOpen && (hol != null && curr != null)) AddWidget(onSave = { it, days ->
+                                            mainViewModel.createItem(it, settingsViewModel.hol.value!!.id!!, days)
                                         }, holodos = hol, user = curr) {
                                             addWidgetOpen = false
                                         }
@@ -220,8 +221,7 @@ class MainActivity : AppCompatActivity() {
                                     }
                                 }
                                 composable(Navigation.LIST.route) {
-                                    val items = cartScreenViewModel.items.collectAsState().value
-                                    ShoppingListPage(items)
+                                    ShoppingListPage(mainViewModel.cart)
                                 }
                                 composable(Navigation.AUTH.route) {
                                     AuthPage(modifier = Modifier.padding(innerPadding)) {

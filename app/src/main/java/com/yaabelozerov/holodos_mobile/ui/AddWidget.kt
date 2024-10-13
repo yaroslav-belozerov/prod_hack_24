@@ -58,9 +58,9 @@ fun CreateUserDTO.toOwner(): Owner = Owner(
 )
 
 @Composable
-fun AddWidget(onSave: (CreateProductDTO) -> Unit, holodos: HolodosResponse, user: CreateUserDTO, onDismissRequest: () -> Unit) {
+fun AddWidget(onSave: (CreateProductDTO, Int) -> Unit, holodos: HolodosResponse, user: CreateUserDTO, onDismissRequest: () -> Unit) {
     Dialog(onDismissRequest = { onDismissRequest() }) {
-        var item by remember { mutableStateOf(CreateProductDTO(null, sku = null, holodos, 0, "2024-10-13T09:40:06.084+00:00", user.toOwner())) }
+        var item by remember { mutableStateOf(CreateProductDTO(0, sku = Sku(0, "", pictureUrl = "", bestBeforeDays = 0, products = emptyList()), holodos, 0, "2024-10-13T09:40:06.084+00:00", user.toOwner())) }
 
         val df = SimpleDateFormat("yyyy-MM-dd", Locale.US)
         val days = df.parse(item.dateMade!!.split("T").first()).toInstant()
@@ -99,7 +99,7 @@ fun AddWidget(onSave: (CreateProductDTO) -> Unit, holodos: HolodosResponse, user
                         }) { Icon(Icons.Filled.KeyboardArrowUp, contentDescription = null) }
                         Button(
                             onClick = {
-                                daysUntilExpiry += 1
+                                daysUntilExpiry -= 1
                             }, enabled = daysUntilExpiry > 0
                         ) { Icon(Icons.Filled.KeyboardArrowDown, contentDescription = null) }
                     }
@@ -118,7 +118,7 @@ fun AddWidget(onSave: (CreateProductDTO) -> Unit, holodos: HolodosResponse, user
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(onClick = onDismissRequest) { Text(stringResource(R.string.cancel)) }
                     Button(modifier = Modifier.weight(1f), onClick = {
-                        onSave(item.copy(dateMade = now.minusDays(daysUntilExpiry).toString(), sku = item.sku?.copy(name = text) ?: Sku(name = text)))
+                        onSave(item.copy(dateMade = now.minusDays(daysUntilExpiry).toString(), sku = item.sku?.copy(name = text, bestBeforeDays = daysUntilExpiry.toInt()) ?: Sku(name = text, bestBeforeDays = daysUntilExpiry.toInt())), daysUntilExpiry.toInt())
                         onDismissRequest()
                     }) { Text(stringResource(R.string.save)) }
                 }

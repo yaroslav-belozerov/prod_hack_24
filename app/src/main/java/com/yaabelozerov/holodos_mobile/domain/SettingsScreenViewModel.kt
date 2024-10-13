@@ -312,7 +312,7 @@ class SettingsScreenViewModel @Inject constructor(
                                        }
                                    })
                                 } else {
-                                    _users.update { p1.body()!!.firstOrNull()?.users ?: emptyList() } // TODO cyclic holodos
+                                    _users.update { it + (p1.body()!!.firstOrNull()?.users ?: emptyList()) } // TODO cyclic holodos
                                     api.getHolodosByUserId(uid).enqueue(object : Callback<List<HolodosResponse>> {
                                         override fun onResponse(
                                             p0: Call<List<HolodosResponse>>,

@@ -19,6 +19,10 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
+data class Data(
+    val data: String
+)
+
 interface HolodosService {
 //    @POST("/api/updateUser/{id}")
 //    suspend fun updateUser(user: UserDTO)
@@ -55,14 +59,14 @@ interface HolodosService {
     @PUT("/api/user/")
     fun putUser(@Body user: CreateUserDTO): Call<ResponseBody>
 
-    @GET("/api/receipt")
-    fun getQrData(@Query("qr") qr: String): Call<QRDTO>
+    @POST("/api/receipt")
+    fun getQrData(@Body qr: Data): Call<QRDTO>
 
     @POST("/api/user/")
     fun createUser(@Body createCreateCreateUserD: CreateUserDTO): Call<CreateUserDTO>
 
     @POST("/api/user/changeAvatar/")
-    fun changeUserAvatar(@Query("avatar") avatarIndex: Int)
+    fun changeUserAvatar(@Query("avatar") avatarIndex: Int): Call<ResponseBody>
 
     @GET("/api/user/phone")
     fun getUserByPhone(@Query("phone") phone: String): Call<CreateUserDTO>
@@ -70,10 +74,10 @@ interface HolodosService {
     @GET("/api/user/{id}")
     fun getUserById(@Path("id") id: Long): Call<CreateUserDTO>
 
-    @POST("/products")
+    @POST("/api/products/")
     fun createProduct(@Query("userId") userId: Long, @Query("holodosId") holodosId: Long, @Body data: CreateProductDTO): Call<CreateProductDTO>
 
-    @GET("/products/products")
+    @GET("/api/products/products")
     fun getProducts(@Query("userId") userId: Long, @Query("holodosId") holodosId: Long): Call<List<CreateProductDTO>>
 
     @POST("/api/holodos/")
@@ -92,11 +96,11 @@ interface HolodosService {
     fun getCart(@Query("userId") userId: Long, @Query("holodosId") holodosId: Long): Call<List<SkuDTO>>
 
     @PUT("/api/shoppingCart/updateQuantity")
-    fun updateQuantity(@Query("userId") userId: Long, @Query("holodosId") holodosId: Long, @Query("skuId") skuId: Long, @Query("quantity") quantity: Int)
+    fun updateQuantity(@Query("userId") userId: Long, @Query("holodosId") holodosId: Long, @Query("skuId") skuId: Long, @Query("quantity") quantity: Int): Call<ResponseBody>
 
     @POST("/api/shoppingCart/add")
-    fun addToCart(@Query("userId") userId: Long, @Query("holodosId") holodosId: Long, @Query("skuId") skuId: Long)
+    fun addToCart(@Query("userId") userId: Long, @Query("holodosId") holodosId: Long, @Query("skuId") skuId: Long):Call<ResponseBody>
 
     @DELETE("/product/")
-    fun deleteProductById(@Query("id") id: Long)
+    fun deleteProductById(@Query("id") id: Long): Call<ResponseBody>
 }

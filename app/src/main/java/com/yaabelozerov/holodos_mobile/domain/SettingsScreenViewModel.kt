@@ -138,64 +138,65 @@ class SettingsScreenViewModel @Inject constructor(
                                     fetchUid()
                                 }
                             } else if (p1.code() == 404) {
-                                viewModelScope.launch {
-                                    withContext(Dispatchers.IO) {
-                                        api.getUserByPhone(number).enqueue(object : Callback<CreateUserDTO> {
-                                            override fun onResponse(
-                                                p0: Call<CreateUserDTO>,
-                                                p1: Response<CreateUserDTO>
-                                            ) {
-                                                if (p1.code() == 200) {
-                                                    viewModelScope.launch {
-                                                        dataStoreManager.setUid(p1.body()!!.id!!)
-                                                        fetchUid()
-                                                    }
-                                                } else {
-                                                    api.createUser(
-                                                        CreateUserDTO(
-                                                            firstName = "Имя",
-                                                            lastName = "Фамилия",
-                                                            phone = number.convertNumber(),
-                                                            role = "SPONSOR"
-                                                        )
-                                                    ).enqueue(object : Callback<CreateUserDTO> {
-                                                        override fun onResponse(
-                                                            p0: Call<CreateUserDTO>,
-                                                            p1: Response<CreateUserDTO>
-                                                        ) {
-                                                            viewModelScope.launch {
-                                                                Log.i("createUser", p1.code().toString() + " " + p1.message())
-                                                                dataStoreManager.setUid(p1.body()!!.id!!)
-                                                                fetchUid()
-                                                            }
-                                                        }
-
-                                                        override fun onFailure(
-                                                            p0: Call<CreateUserDTO>,
-                                                            p1: Throwable
-                                                        ) {
-                                                            Toast.makeText(app, "Ошибка создания пользователя", Toast.LENGTH_SHORT).show()
-                                                            println(p0.request().url())
-                                                            println(p0.request().method())
-                                                            p1.printStackTrace()
-                                                        }
-
-                                                    })
-                                                }
-                                            }
-
-                                            override fun onFailure(
-                                                p0: Call<CreateUserDTO>,
-                                                p1: Throwable
-                                            ) {
-                                                println(p0.request().url())
-                                                println(p0.request().method())
-                                                p1.printStackTrace()
-                                            }
-
-                                        })
-                                    }
-                                }
+                                Log.i("getUserByPhone", "${p0.request().url()} ${p1.code()}")
+//                                viewModelScope.launch {
+//                                    withContext(Dispatchers.IO) {
+//                                        api.getUserByPhone(number).enqueue(object : Callback<CreateUserDTO> {
+//                                            override fun onResponse(
+//                                                p0: Call<CreateUserDTO>,
+//                                                p1: Response<CreateUserDTO>
+//                                            ) {
+//                                                if (p1.code() == 200) {
+//                                                    viewModelScope.launch {
+//                                                        dataStoreManager.setUid(p1.body()!!.id!!)
+//                                                        fetchUid()
+//                                                    }
+//                                                } else {
+//                                                    api.createUser(
+//                                                        CreateUserDTO(
+//                                                            firstName = "Имя",
+//                                                            lastName = "Фамилия",
+//                                                            phone = number.convertNumber(),
+//                                                            role = "SPONSOR"
+//                                                        )
+//                                                    ).enqueue(object : Callback<CreateUserDTO> {
+//                                                        override fun onResponse(
+//                                                            p0: Call<CreateUserDTO>,
+//                                                            p1: Response<CreateUserDTO>
+//                                                        ) {
+//                                                            viewModelScope.launch {
+//                                                                Log.i("createUser", p1.code().toString() + " " + p1.message())
+//                                                                dataStoreManager.setUid(p1.body()!!.id!!)
+//                                                                fetchUid()
+//                                                            }
+//                                                        }
+//
+//                                                        override fun onFailure(
+//                                                            p0: Call<CreateUserDTO>,
+//                                                            p1: Throwable
+//                                                        ) {
+//                                                            Toast.makeText(app, "Ошибка создания пользователя", Toast.LENGTH_SHORT).show()
+//                                                            println(p0.request().url())
+//                                                            println(p0.request().method())
+//                                                            p1.printStackTrace()
+//                                                        }
+//
+//                                                    })
+//                                                }
+//                                            }
+//
+//                                            override fun onFailure(
+//                                                p0: Call<CreateUserDTO>,
+//                                                p1: Throwable
+//                                            ) {
+//                                                println(p0.request().url())
+//                                                println(p0.request().method())
+//                                                p1.printStackTrace()
+//                                            }
+//
+//                                        })
+//                                    }
+//                                }
                             }
                         }
 

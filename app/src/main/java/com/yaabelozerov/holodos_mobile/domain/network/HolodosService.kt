@@ -24,81 +24,81 @@ data class Data(
 )
 
 interface HolodosService {
-//    @POST("/api/updateUser/{id}")
+//    @POST("/holodos/api/updateUser/{id}")
 //    suspend fun updateUser(user: UserDTO)
 //
-//    @GET("/api/getHolodosGroup/{id}")
+//    @GET("/holodos/api/getHolodosGroup/{id}")
 //    suspend fun getHolodosGroup(@Path("id") id: Long): GroupDTO
 //
-//    @GET("/api/status")
+//    @GET("/holodos/api/status")
 //    fun serverStatus(): Call<ResponseBody>
 //
-//    @GET("/api/getProductsByHolodos/{id}")
+//    @GET("/holodos/api/getProductsByHolodos/{id}")
 //    suspend fun getProductsByHolodos(@Path("id") id: Long): List<ItemDTO>
 //
-//    @GET("/api/deleteProductFromHolodos/{id}")
+//    @GET("/holodos/api/deleteProductFromHolodos/{id}")
 //    suspend fun deleteProductFromHolodos(@Path("id") id: Long)
 //
-//    @POST("/api/addProductToHolodos")
+//    @POST("/holodos/api/addProductToHolodos")
 //    suspend fun addProductsToHolodos(data: ItemDTO)
 //
-//    @GET("/api/login")
+//    @GET("/holodos/api/login")
 //    suspend fun login(number: String): Long
 //
-//    @GET("/api/addUser")
+//    @GET("/holodos/api/addUser")
 //    suspend fun addUser(data: UserDTO)
 //
-//    @GET("/api/users/{id}")
+//    @GET("/holodos/api/users/{id}")
 //    suspend fun getUsers(@Path("id") id: Long): List<UserDTO>
 //
-//    @GET("/api/cartitems")
+//    @GET("/holodos/api/cartitems")
 //    suspend fun getCartItems(): List<SkuDTO>
 //
 //    @GET("TODO")
 //    suspend fun updateProductInHolodos(id: Long, count: Int)
-    @PUT("/api/user/")
+    @PUT("/holodos/api/user/")
     fun putUser(@Body user: CreateUserDTO): Call<ResponseBody>
 
-    @POST("/api/receipt")
+    @POST("/holodos/api/receipt")
     fun getQrData(@Body qr: Data): Call<QRDTO>
 
-    @POST("/api/user/")
+    @POST("/holodos/api/user/")
     fun createUser(@Body createCreateCreateUserD: CreateUserDTO): Call<CreateUserDTO>
 
-    @POST("/api/user/changeAvatar/")
+    @POST("/holodos/api/user/changeAvatar/")
     fun changeUserAvatar(@Query("avatar") avatarIndex: Int): Call<ResponseBody>
 
-    @GET("/api/user/phone")
+    @GET("/holodos/api/user/phone")
     fun getUserByPhone(@Query("phone") phone: String): Call<CreateUserDTO>
 
-    @GET("/api/user/{id}")
+    @GET("/holodos/api/user/{id}")
     fun getUserById(@Path("id") id: Long): Call<CreateUserDTO>
 
-    @POST("/api/products/")
+    @POST("/holodos/api/products/")
     fun createProduct(@Query("userId") userId: Long, @Query("holodosId") holodosId: Long, @Body data: CreateProductDTO): Call<CreateProductDTO>
 
-    @GET("/api/products/products")
+    @GET("/holodos/api/products/products")
     fun getProducts(@Query("userId") userId: Long, @Query("holodosId") holodosId: Long): Call<List<CreateProductDTO>>
 
-    @POST("/api/holodos/")
+    @POST("/holodos/api/holodos/")
     fun createHolodos(@Body data: HolodosResponse): Call<HolodosResponse>
 
-    @POST("/api/holodos/{id}/users")
+    @POST("/holodos/api/holodos/{id}/users")
     fun addUserToHolodos(@Path("id") id: Long, @Query("userId") userId: Long): Call<HolodosResponse>
 
-    @GET("/api/holodos/userId")
+    @GET("/holodos/api/holodos/userId")
     fun getHolodosByUserId(@Query("userId") userId: Long): Call<List<HolodosResponse>>
 
-    @GET("/api/shoppingCart/search")
+    @GET("/holodos/api/shoppingCart/search")
     fun searchInCart(@Query("query") query: String): Call<List<Sku>>
 
-    @GET("/api/shoppingCart/get")
+    @GET("/holodos/api/shoppingCart/get")
     fun getCart(@Query("userId") userId: Long, @Query("holodosId") holodosId: Long): Call<List<SkuDTO>>
 
-    @PUT("/api/shoppingCart/updateQuantity")
+    @PUT("/holodos/api/shoppingCart/updateQuantity")
     fun updateQuantity(@Query("userId") userId: Long, @Query("holodosId") holodosId: Long, @Query("skuId") skuId: Long, @Query("quantity") quantity: Int): Call<ResponseBody>
 
-    @POST("/api/shoppingCart/add")
+    @POST("/holodos/api/shoppingCart/add")
     fun addToCart(@Query("userId") userId: Long, @Query("holodosId") holodosId: Long, @Query("skuId") skuId: Long):Call<ResponseBody>
 
     @DELETE("/product/")

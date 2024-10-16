@@ -62,10 +62,6 @@ class MainScreenViewModel @Inject constructor(
     }
 
     fun createItem(itemDTO: CreateProductDTO, holodosId: Long, days: Int) {
-        _items.update { it.plus(itemDTO.copy(id = id.value.toLong(), quantity = 1, dateMade = days.toString())) }
-        id.update { it+1 }
-        return
-
         viewModelScope.launch {
             dataStoreManager.getUid().collect { uid ->
                 itemApi.createProduct(uid, holodosId, itemDTO)
@@ -92,13 +88,6 @@ class MainScreenViewModel @Inject constructor(
     }
 
     fun fetchItems() {
-        when (_sort.value) {
-            Sorting.EXPIRY_DATE -> _items.update { it.sortedByDescending { it.dateMade } }
-            Sorting.QUANTITY -> _items.update { it.sortedByDescending { it.quantity } }
-            Sorting.NONE -> _items.update { it }
-        }
-        return
-
         viewModelScope.launch {
             dataStoreManager.getUid().collect { uid ->
                 if (uid != -1L) {
@@ -156,11 +145,6 @@ class MainScreenViewModel @Inject constructor(
     }
 
     fun updateProductCount(item: CreateProductDTO, holodosId: Long, newCount: Int) {
-        val ind = _items.value.indexOfFirst { it.id == item.id }
-        if (newCount == 0) _items.update { it.filter { el -> el.id != item.id } }
-        else _items.update { it.map { el -> if (el.id == item.id) el.copy(quantity = newCount) else el } }
-        return
-
         viewModelScope.launch {
             dataStoreManager.getUid().collect { uid ->
                 if (uid != -1L) {

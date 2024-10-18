@@ -10,6 +10,7 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.yaabelozerov.holodos_mobile.C
 import com.yaabelozerov.holodos_mobile.domain.network.HolodosService
+import com.yaabelozerov.holodos_mobile.domain.network.LogInterceptor
 import com.yaabelozerov.holodos_mobile.mock.MockApi
 import dagger.Module
 import dagger.Provides
@@ -18,6 +19,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import javax.inject.Inject
@@ -43,7 +45,8 @@ object AppModule {
     @Singleton
     @Provides
     fun provideItemApi(moshi: Moshi): HolodosService {
-        return Retrofit.Builder().baseUrl(C.BASE_URL).addConverterFactory(MoshiConverterFactory.create(moshi)).build().create(HolodosService::class.java)
+        val client = OkHttpClient.Builder().addInterceptor(LogInterceptor()).build()
+        return Retrofit.Builder().client(client).baseUrl(C.BASE_URL).addConverterFactory(MoshiConverterFactory.create(moshi)).build().create(HolodosService::class.java)
     }
 
     private val Context.dataStore by preferencesDataStore("settings")

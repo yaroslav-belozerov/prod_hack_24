@@ -25,4 +25,7 @@
     <string name="phone_num">Номер телефона</string>
     <string name="invite_user">Пригласить пользователя</string>
     <string name="can_add_items">Может добавлять предметы в корзину</string>
+    <string name="quantity">Количество</string>
+    <string name="logout">Выйти</string>
+    <string name="enter_valid_phone">Некорректный номер телефона</string>
 </resources>

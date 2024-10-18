@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -36,11 +37,11 @@ import com.yaabelozerov.holodos_mobile.domain.RussianNumberVisualTransformation
 
 @Composable
 fun AuthPage(
-    modifier: Modifier,
-    onLogin: (String) -> Unit
+    modifier: Modifier, onLogin: (String) -> Unit
 ) {
     var isLoading by remember { mutableStateOf(false) }
     var login by remember { mutableStateOf("") }
+    var isPhoneErr by remember { mutableStateOf(false) }
     Column(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -48,24 +49,33 @@ fun AuthPage(
     ) {
         Text(stringResource(R.string.holodos), fontSize = 64.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(64.dp))
-        TextField(
-            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-            value = login,
-            onValueChange = {login = it},
-            label = { Text(stringResource(R.string.askPhoneNum)) },
-            maxLines = 1,
-            visualTransformation = RussianNumberVisualTransformation(),
-
-        )
+        PhoneField(isErr = isPhoneErr, modifier = Modifier.padding(32.dp, 0.dp), onContinue = {
+            if (login.length == 12) {
+                isLoading = true
+                onLogin(login)
+                isPhoneErr = false
+                true
+            } else {
+                isPhoneErr = true
+                false
+            }
+        }, mask = "000 000 00-00", onChange = {
+            login = it
+            isPhoneErr = false
+        })
         Spacer(
             Modifier.size(16.dp)
         )
         if (!isLoading) Button(
             onClick = {
-                isLoading = true
-                onLogin(login)
-                      },
-
+                if (login.length == 12) {
+                    isLoading = true
+                    onLogin(login)
+                    isPhoneErr = false
+                } else {
+                    isPhoneErr = true
+                }
+            },
         ) {
             Text(
                 text = stringResource(R.string.auth)

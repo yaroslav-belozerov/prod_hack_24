@@ -6,7 +6,7 @@ import kotlin.reflect.KClass
 
 sealed class C {
     companion object {
-        val BASE_URL = "https://tarakoshka.tech/"
+        val BASE_URL = "https://tarakoshka.tech/holodos/"
         val IS_MOCK = false
     }
 }

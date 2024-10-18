@@ -1,5 +1,6 @@
 package com.yaabelozerov.holodos_mobile.ui
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,21 +27,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.type.TimeZone
+import com.google.type.DateTime
 import com.yaabelozerov.holodos_mobile.R
 import com.yaabelozerov.holodos_mobile.data.CreateProductDTO
-import com.yaabelozerov.holodos_mobile.data.HolodosDTO
-import com.yaabelozerov.holodos_mobile.data.ItemDTO
-import com.yaabelozerov.holodos_mobile.domain.MainScreenViewModel
-import java.text.SimpleDateFormat
+import com.yaabelozerov.holodos_mobile.domain.SettingsScreenViewModel
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.util.Locale
 
 
 @Composable
 fun MainPage(
-    mainScreenViewModel: MainScreenViewModel,
+    settingsVM: SettingsScreenViewModel,
     holodosId: Long,
     products: List<CreateProductDTO>
 ) {
@@ -54,9 +52,9 @@ fun MainPage(
         }
         items(p) { item ->
             Product(item, onAdd = {
-                mainScreenViewModel.updateProductCount(item, holodosId, item.quantity!! + 1)
+                settingsVM.updateProductCount(item, holodosId, item.quantity!! + 1)
             }, onRemove = {
-                mainScreenViewModel.updateProductCount(item, holodosId, item.quantity!! - 1)
+                settingsVM.updateProductCount(item, holodosId, item.quantity!! - 1)
             })
         }
         item {
@@ -68,15 +66,13 @@ fun MainPage(
 @Composable
 fun Product(
     item: CreateProductDTO,
-    onAdd: (Long) -> Unit,
-    onRemove: (Long) -> Unit
+    onAdd: () -> Unit,
+    onRemove: () -> Unit
 ) {
-//    val days = SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(item.dateMade!!).toInstant()
-//    days.plusSeconds(((item.sku?.bestBeforeDays ?: 0) * 24 * 60 * 60).toLong())
-//    val expiryDate = LocalDateTime.ofInstant(days, java.util.TimeZone.getDefault().toZoneId())
-//    val now = LocalDateTime.now()
-//    val daysUntilExpiry = ChronoUnit.DAYS.between(now, expiryDate)
-    val daysUntilExpiry = item.dateMade!!.toInt()
+    val fmt = DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss.SSSXXX")
+    val itemDateMade = LocalDateTime.parse(item.dateMade!!, fmt)
+    val staysFreshFor = item.sku?.bestBeforeDays ?: 0
+    val daysUntilExpiry = ChronoUnit.DAYS.between(LocalDateTime.now(), itemDateMade.plusDays(staysFreshFor.toLong() + 1L))
 
     Card(
         colors = CardDefaults.cardColors()
@@ -111,8 +107,8 @@ fun Product(
                         color = if (daysUntilExpiry > 0) MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f) else MaterialTheme.colorScheme.onBackground,
                     )
                     Spacer(Modifier.width(4.dp))
-                    OutlinedIconButton(onClick = { onAdd(item.id!!) }) { Icon(Icons.Default.Add, contentDescription = null) }
-                    OutlinedIconButton(onClick = { onRemove(item.id!!) }) { Icon(painterResource(R.drawable.remove), contentDescription = null) }
+                    OutlinedIconButton(onClick = { onRemove() }) { Icon(painterResource(R.drawable.remove), contentDescription = null) }
+                    OutlinedIconButton(onClick = { onAdd() }) { Icon(Icons.Default.Add, contentDescription = null) }
                 }
                 Text(
                     text = if (daysUntilExpiry > 0) daysUntilExpiry.toString() + " " + stringResource(R.string.days) else stringResource(

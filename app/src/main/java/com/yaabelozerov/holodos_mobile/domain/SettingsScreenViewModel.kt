@@ -2,44 +2,53 @@ package com.yaabelozerov.holodos_mobile.domain
 
 import android.content.Context
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.squareup.moshi.JsonDataException
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.adapter
+import com.yaabelozerov.holodos_mobile.data.CreateProductDTO
 import com.yaabelozerov.holodos_mobile.data.CreateUserDTO
+import com.yaabelozerov.holodos_mobile.data.ErrQRDTO
 import com.yaabelozerov.holodos_mobile.data.HolodosResponse
+import com.yaabelozerov.holodos_mobile.data.QRDTO
 import com.yaabelozerov.holodos_mobile.di.AppModule
+import com.yaabelozerov.holodos_mobile.domain.network.Data
 import com.yaabelozerov.holodos_mobile.domain.network.HolodosService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import retrofit2.awaitResponse
 import javax.inject.Inject
-
-data class LoginState(
-    val number: String,
-    val uid: Long,
-    val isLoggedIn: Boolean,
-)
 
 @HiltViewModel
 class SettingsScreenViewModel @Inject constructor(
     @ApplicationContext private val app: Context,
     private val api: HolodosService,
-    private val dataStoreManager: AppModule.DataStoreManager
+    private val dataStoreManager: AppModule.DataStoreManager,
+    private val moshi: Moshi
 ) : ViewModel() {
     private val _users = MutableStateFlow(emptyList<CreateUserDTO>())
     val users = _users.asStateFlow()
 
     private val _current = MutableStateFlow<CreateUserDTO?>(null)
     val current = _current.asStateFlow()
+
+    private val _items = MutableStateFlow(emptyList<CreateProductDTO>())
+    val items = _items.asStateFlow()
+
+    private val _sort = MutableStateFlow(Sorting.NONE)
+    val sort = _sort.asStateFlow()
+
+    private val _qr = MutableStateFlow(QRDTO())
+    val qr = _qr.asStateFlow()
 
     private val _hol = MutableStateFlow<HolodosResponse?>(null)
     val hol = _hol.asStateFlow()
@@ -58,25 +67,12 @@ class SettingsScreenViewModel @Inject constructor(
         viewModelScope.launch {
             dataStoreManager.getUid().collect { uid ->
                 if (uid != -1L) {
-                    _loggedIn.update { true }
-                    api.getUserById(uid).enqueue(object : Callback<CreateUserDTO> {
-                        override fun onResponse(
-                            p0: Call<CreateUserDTO>,
-                            p1: Response<CreateUserDTO>
-                        ) {
-                            if (p1.code() == 200) {
-                                _current.update { p1.body()!! }
-                            } else {
-                                Log.e("fetchUid", p1.errorBody().toString())
-                            }
-                        }
-
-                        override fun onFailure(p0: Call<CreateUserDTO>, p1: Throwable) {
-                            println(p0.request().url())
-                            println(p0.request().method())
-                            p1.printStackTrace()
-                        }
-                    })
+                    val getUserByIdResp = api.getUserById(uid).awaitResponse()
+                    if (getUserByIdResp.code() != 200) {
+                        _loggedIn.update { false }
+                        return@collect
+                    }
+                    _current.update { getUserByIdResp.body()!! }
                     fetchUsers()
                 } else _loggedIn.update { false }
             }
@@ -85,33 +81,24 @@ class SettingsScreenViewModel @Inject constructor(
 
     fun addUser(phone: String, isSponsor: Boolean) {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                api.getUserByPhone(phone).enqueue(object : Callback<CreateUserDTO> {
-                    override fun onResponse(p0: Call<CreateUserDTO>, p1: Response<CreateUserDTO>) {
-                        if (p1.code() == 200) {
-                            val user = p1.body()!!
-                            api.putUser(user.copy(role = if (isSponsor) "SPONSOR" else "RECEIVER"))
-                            fetchUsers()
-                        } else if (p1.code() == 404) {
-                            api.createUser(
-                                CreateUserDTO(
-                                    firstName = "Имя",
-                                    lastName = "Фамилия",
-                                    phone = phone,
-                                    role = if (isSponsor) "SPONSOR" else "RECEIVER"
-                                )
-                            )
-                            fetchUsers()
-                        }
-                    }
-
-                    override fun onFailure(p0: Call<CreateUserDTO>, p1: Throwable) {
-                        Toast.makeText(app, "Ошибка создания пользователя", Toast.LENGTH_SHORT).show()
-                        println(p0.request().url())
-                        println(p0.request().method())
-                        p1.printStackTrace()
-                    }
-                })
+            val getUserByPhoneResp = api.getUserByPhone(phone).awaitResponse()
+            if (getUserByPhoneResp.code() == 200) {
+                val user = getUserByPhoneResp.body()!!
+                api.putUser(user.copy(role = if (isSponsor) "SPONSOR" else "RECEIVER"))
+                fetchUsers()
+            } else if (getUserByPhoneResp.code() == 404) {
+                api.createUser(
+                    CreateUserDTO(
+                        id = 0,
+                        firstName = "Имя",
+                        lastName = "Фамилия",
+                        phone = phone,
+                        holodoses = emptyList(),
+                        role = if (isSponsor) "SPONSOR" else "RECEIVER",
+                        avatarIndex = 0
+                    )
+                )
+                fetchUsers()
             }
         }
     }
@@ -125,249 +112,159 @@ class SettingsScreenViewModel @Inject constructor(
 
     fun login(number: String) {
         viewModelScope.launch {
-            api.getUserByPhone(number.convertNumber().also { Log.i("converted_number", it) })
-                .enqueue(
-                    object : Callback<CreateUserDTO> {
-                        override fun onResponse(
-                            p0: Call<CreateUserDTO>,
-                            p1: Response<CreateUserDTO>
-                        ) {
-                            if (p1.code() == 200) {
-                                viewModelScope.launch {
-                                    dataStoreManager.setUid(p1.body()!!.id!!)
-                                    fetchUid()
-                                }
-                            } else if (p1.code() == 404) {
-                                Log.i("getUserByPhone", "${p0.request().url()} ${p1.code()}")
-//                                viewModelScope.launch {
-//                                    withContext(Dispatchers.IO) {
-//                                        api.getUserByPhone(number).enqueue(object : Callback<CreateUserDTO> {
-//                                            override fun onResponse(
-//                                                p0: Call<CreateUserDTO>,
-//                                                p1: Response<CreateUserDTO>
-//                                            ) {
-//                                                if (p1.code() == 200) {
-//                                                    viewModelScope.launch {
-//                                                        dataStoreManager.setUid(p1.body()!!.id!!)
-//                                                        fetchUid()
-//                                                    }
-//                                                } else {
-//                                                    api.createUser(
-//                                                        CreateUserDTO(
-//                                                            firstName = "Имя",
-//                                                            lastName = "Фамилия",
-//                                                            phone = number.convertNumber(),
-//                                                            role = "SPONSOR"
-//                                                        )
-//                                                    ).enqueue(object : Callback<CreateUserDTO> {
-//                                                        override fun onResponse(
-//                                                            p0: Call<CreateUserDTO>,
-//                                                            p1: Response<CreateUserDTO>
-//                                                        ) {
-//                                                            viewModelScope.launch {
-//                                                                Log.i("createUser", p1.code().toString() + " " + p1.message())
-//                                                                dataStoreManager.setUid(p1.body()!!.id!!)
-//                                                                fetchUid()
-//                                                            }
-//                                                        }
-//
-//                                                        override fun onFailure(
-//                                                            p0: Call<CreateUserDTO>,
-//                                                            p1: Throwable
-//                                                        ) {
-//                                                            Toast.makeText(app, "Ошибка создания пользователя", Toast.LENGTH_SHORT).show()
-//                                                            println(p0.request().url())
-//                                                            println(p0.request().method())
-//                                                            p1.printStackTrace()
-//                                                        }
-//
-//                                                    })
-//                                                }
-//                                            }
-//
-//                                            override fun onFailure(
-//                                                p0: Call<CreateUserDTO>,
-//                                                p1: Throwable
-//                                            ) {
-//                                                println(p0.request().url())
-//                                                println(p0.request().method())
-//                                                p1.printStackTrace()
-//                                            }
-//
-//                                        })
-//                                    }
-//                                }
-                            }
-                        }
-
-                        override fun onFailure(p0: Call<CreateUserDTO>, p1: Throwable) {
-                            Toast.makeText(app, "Ошибка автоирзации", Toast.LENGTH_SHORT).show()
-                            println(p0.request().url())
-                            println(p0.request().method())
-                            p1.printStackTrace()
-                        }
-                    })
+            val r =
+                api.getUserByPhone(number)
+                    .awaitResponse()
+            if (r.code() == 200) {
+                dataStoreManager.setUid(r.body()!!.id!!)
+            } else if (r.code() == 404) {
+                val r = api.createUser(
+                    CreateUserDTO(
+                        id = 0,
+                        firstName = "Имя",
+                        lastName = "Фамилия",
+                        phone = number.convertNumber(),
+                        holodoses = emptyList(),
+                        role = "SPONSOR",
+                        avatarIndex = 0
+                    )
+                ).awaitResponse()
+                dataStoreManager.setUid(r.body()!!.id!!)
+            }
+            fetchUid()
         }
     }
 
     fun fetchUsers() {
         viewModelScope.launch {
-                dataStoreManager.getUid().collect { uid ->
-                    if (uid != -1L) {
-                        api.getUserById(uid).enqueue(object : Callback<CreateUserDTO> {
-                            override fun onResponse(
-                                p0: Call<CreateUserDTO>,
-                                p1: Response<CreateUserDTO>
-                            ) {
-                                if (p1.code() == 200) {
-                                    Log.i("info", "${p1.body()} ${p1.code()} $uid")
-                                    _users.update { listOf(p1.body()!!) }
-                                } else {
-                                    Toast.makeText(app, "Ошибка получения пользователей 1", Toast.LENGTH_SHORT).show()
-                                    Log.e("getUsers1", uid.toString() + " " + p1.code().toString() + " " + p1.message())
-                                }
-                            }
+            dataStoreManager.getUid().collect { uid ->
+                if (uid == -1L) return@collect
 
-                            override fun onFailure(p0: Call<CreateUserDTO>, p1: Throwable) {
-                                println(p0.request().url())
-                                println(p0.request().method())
-                                p1.printStackTrace()
-                            }
+                val currentUserResp = api.getUserById(uid).awaitResponse()
+                if (currentUserResp.code() == 200) {
+                    _users.update { listOf(currentUserResp.body()!!) }
+                    _current.update { currentUserResp.body()!! }
+                } else return@collect
 
-                        })
-                        api.getHolodosByUserId(uid).enqueue(object : Callback<List<HolodosResponse>> {
-                            override fun onResponse(
-                                p0: Call<List<HolodosResponse>>,
-                                p1: Response<List<HolodosResponse>>
-                            ) {
-                                if (p1.body()!!.isEmpty()) {
-                                   api.getUserById(uid.also { Log.i("uid get golodos", it.toString()) }).enqueue(object : Callback<CreateUserDTO> {
-                                       override fun onResponse(
-                                           p0: Call<CreateUserDTO>,
-                                           p1: Response<CreateUserDTO>
-                                       ) {
-                                           if (p1.code() == 200) {
-                                               api.createHolodos(
-                                                   HolodosResponse(
-                                                       id = null,
-                                                       name = "Холодос!",
-                                                       users = listOf(),
-                                                       products = listOf()
-                                                   )
-                                               ).enqueue(object : Callback<HolodosResponse> {
-                                                   override fun onResponse(
-                                                       p0: Call<HolodosResponse>,
-                                                       p1: Response<HolodosResponse>
-                                                   ) {
-                                                       if (p1.code() == 200) {
-                                                           _hol.update { p1.body()!! }
-                                                           api.addUserToHolodos(p1.body()!!.id!!, uid).enqueue(object : Callback<HolodosResponse> {
-                                                               override fun onResponse(
-                                                                   p0: Call<HolodosResponse>,
-                                                                   p1: Response<HolodosResponse>
-                                                               ) {
-                                                                   if (p1.code() == 200) {
-                                                                        _users.update { p1.body()!!.users!! }
-                                                                   } else {
-                                                                       Log.e("getUsers", uid.toString() + " " + p1.code().toString() + " " + p1.message())
-                                                                   }
-                                                               }
-
-                                                               override fun onFailure(
-                                                                   p0: Call<HolodosResponse>,
-                                                                   p1: Throwable
-                                                               ) {
-                                                                   println(p0.request().url())
-                                                                   println(p0.request().method())
-                                                                   p1.printStackTrace()
-                                                               }
-
-                                                           })
-                                                       } else {
-                                                           Log.e("getUsers2", uid.toString() + " " + p1.code().toString() + " " + p1.message())
-                                                       }
-                                                   }
-
-                                                   override fun onFailure(
-                                                       p0: Call<HolodosResponse>,
-                                                       p1: Throwable
-                                                   ) {
-                                                       println(p0.request().url())
-                                                       println(p0.request().method())
-                                                       p1.printStackTrace()
-                                                   }
-
-                                               })
-                                           } else {
-                                               Log.e("getUsers3", uid.toString() + " " + p1.code().toString() + " " + p1.message())
-                                           }
-                                       }
-
-                                       override fun onFailure(
-                                           p0: Call<CreateUserDTO>,
-                                           p1: Throwable
-                                       ) {
-                                           println(p0.request().url())
-                                           println(p0.request().method())
-                                           p1.printStackTrace()
-                                       }
-                                   })
-                                } else {
-                                    _users.update { it + (p1.body()!!.firstOrNull()?.users ?: emptyList()) } // TODO cyclic holodos
-                                    api.getHolodosByUserId(uid).enqueue(object : Callback<List<HolodosResponse>> {
-                                        override fun onResponse(
-                                            p0: Call<List<HolodosResponse>>,
-                                            p1: Response<List<HolodosResponse>>
-                                        ) {
-                                            if (p1.code() == 200) {
-                                                _hol.update { p1.body()!!.firstOrNull() }
-                                            }
-                                        }
-
-                                        override fun onFailure(
-                                            p0: Call<List<HolodosResponse>>,
-                                            p1: Throwable
-                                        ) {
-                                            p1.printStackTrace()
-                                        }
-
-                                    })
-                                    Log.d("users", "users: ${_users.value}")
-                                }
-                            }
-
-                            override fun onFailure(p0: Call<List<HolodosResponse>>, p1: Throwable) {
-                                println(p0.request().url())
-                                println(p0.request().method())
-                                p1.printStackTrace()
-                               Toast.makeText(app, "Ошибка получения пользователей 2", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    )}
+                val holodosByUidResp = api.getHolodosByUserId(uid).awaitResponse()
+                Log.d("holodos1", holodosByUidResp.body()!!.toString())
+                if (holodosByUidResp.body()!!.isEmpty()) {
+                    val createHolodosResp = api.createHolodos(
+                        HolodosResponse(
+                            id = 0, name = "Холодос!", users = emptyList(), products = emptyList()
+                        )
+                    ).awaitResponse()
+                    if (createHolodosResp.code() == 200) {
+                        _hol.update { createHolodosResp.body()!! }
+                        api.addUserToHolodos(createHolodosResp.body()!!.id!!, uid).awaitResponse()
+                    } else return@collect
+                } else {
+                    Log.d("holodos2", holodosByUidResp.body()!!.toString())
+                    val getHolodosUsersResp =
+                        api.getHolodosUsers(holodosByUidResp.body()!!.first().id!!).awaitResponse()
+                    if (getHolodosUsersResp.code() == 200) {
+                        _users.update { getHolodosUsersResp.body()!! }
+                    }
+                    Log.d("holodos3", getHolodosUsersResp.body()!!.toString())
+                    _hol.update { holodosByUidResp.body()!!.first() }
                 }
+                fetchItems()
             }
+        }
     }
 
     fun updateUser(u: CreateUserDTO) {
         viewModelScope.launch {
-            api.putUser(
-                u
-            ).enqueue(object : Callback<ResponseBody> {
-                override fun onResponse(p0: Call<ResponseBody>, p1: Response<ResponseBody>) {
-                    if (p1.code() != 200) {
-                        Log.e("updateUser", p1.code().toString() + " " + p1.message())
-                    } else {
-                        fetchUsers()
+            _users.update { it.map { user -> if (user.id == u.id) u else user } }
+            val putUserResp = api.putUser(u).awaitResponse()
+            if (putUserResp.code() == 200) {
+                fetchUsers()
+            }
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            dataStoreManager.setUid(-1L)
+            _current.update { null }
+            _hol.update { null }
+            _users.update { emptyList() }
+            _loggedIn.update { false }
+        }
+    }
+
+    fun fetchItems() {
+        viewModelScope.launch {
+            dataStoreManager.getUid().collect { uid ->
+                Log.i("uid", uid.toString())
+                if (uid != -1L) {
+                    _loggedIn.update { true }
+                    _hol.value?.let {
+                        it.id?.let { hid ->
+                            val getProductsResp = api.getProducts(
+                                uid, hid
+                            ).awaitResponse()
+                            if (getProductsResp.code() == 200) {
+                                _items.update { getProductsResp.body()!! }
+                            }
+                        }
                     }
                 }
+            }
+        }
+    }
 
-                override fun onFailure(p0: Call<ResponseBody>, p1: Throwable) {
-                    println(p0.request().url())
-                    println(p0.request().method())
-                    p1.printStackTrace()
+    fun createItem(itemDTO: CreateProductDTO) {
+        viewModelScope.launch {
+            dataStoreManager.getUid().collect { uid ->
+                val createProductResp =
+                    api.createProduct(_hol.value!!.id!!, itemDTO).awaitResponse()
+                api.addUserToHolodos(_hol.value!!.id!!, uid).awaitResponse()
+                if (createProductResp.code() == 200) {
+                    fetchItems()
                 }
+            }
+        }
+    }
 
-            })
+    fun setSorting(sorting: Sorting) {
+        _sort.update { sorting }
+        fetchItems()
+    }
+
+    fun updateProductCount(item: CreateProductDTO, holodosId: Long, newCount: Int) {
+        viewModelScope.launch {
+            dataStoreManager.getUid().collect { uid ->
+                if (uid != -1L) {
+                    if (newCount <= 0) {
+                        api.deleteProductById(item.id!!).awaitResponse()
+                        fetchItems()
+                    } else {
+                        api.deleteProductById(item.id!!).awaitResponse()
+                        api.createProduct(holodosId, item.copy(quantity = newCount)).awaitResponse()
+                        api.addUserToHolodos(holodosId, uid).awaitResponse()
+                        fetchItems()
+                    }
+                }
+            }
+        }
+    }
+
+    fun getQrData(qr: String) {
+        viewModelScope.launch {
+            api.getQrData(Data(qr)).awaitResponse().body()?.string()?.let { s ->
+                try {
+                    _qr.update { moshi.adapter(QRDTO::class.java).fromJson(s)!! }
+                } catch (e: Exception) {
+                    val msg = try {
+                        val obj = moshi.adapter(ErrQRDTO::class.java).fromJson(s)!!
+                        "${obj.data} ${obj.code}"
+                    } catch (_: Exception) {
+                        s
+                    }
+                    Log.e("qr", msg)
+                }
+            }
         }
     }
 }

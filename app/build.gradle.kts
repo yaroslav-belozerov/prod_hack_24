@@ -88,6 +88,7 @@ dependencies {
     implementation("androidx.camera:camera-camera2:1.2.3")
     implementation("androidx.camera:camera-lifecycle:1.2.3")
     implementation("androidx.camera:camera-view:1.3.0-beta01")
+//    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
 
 //    implementation("androidx.compose.material:material:1.6.8")
 //    implementation("androidx.compose.material:material-icons-extended:1.6.8")

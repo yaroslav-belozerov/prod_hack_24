@@ -19,10 +19,14 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
@@ -44,82 +49,129 @@ import com.yaabelozerov.holodos_mobile.data.CreateProductDTO
 import com.yaabelozerov.holodos_mobile.data.CreateUserDTO
 import com.yaabelozerov.holodos_mobile.data.HolodosResponse
 import com.yaabelozerov.holodos_mobile.data.ItemDTO
-import com.yaabelozerov.holodos_mobile.data.Owner
 import com.yaabelozerov.holodos_mobile.data.Sku
 import com.yaabelozerov.holodos_mobile.data.UserDTO
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import java.time.temporal.Temporal
+import java.time.temporal.TemporalUnit
 import java.util.Locale
 
-fun CreateUserDTO.toOwner(): Owner = Owner(
-    id, firstName, lastName, phone, holodoses, role
-)
-
 @Composable
-fun AddWidget(onSave: (CreateProductDTO, Int) -> Unit, holodos: HolodosResponse, user: CreateUserDTO, onDismissRequest: () -> Unit) {
+fun AddWidget(
+    onSave: (CreateProductDTO) -> Unit,
+    holodos: HolodosResponse,
+    user: CreateUserDTO,
+    onDismissRequest: () -> Unit
+) {
     Dialog(onDismissRequest = { onDismissRequest() }) {
-        var item by remember { mutableStateOf(CreateProductDTO(0, sku = Sku(0, "", pictureUrl = "", bestBeforeDays = 0, products = emptyList()), holodos, 0, "2024-10-13T09:40:06.084+00:00", user.toOwner())) }
+        val fmt = DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss.SSSXXX")
+        var daysUntilExpiry by remember { mutableIntStateOf(0) }
+        var isError by remember { mutableStateOf(false) }
 
-        val df = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-        val days = df.parse(item.dateMade!!.split("T").first()).toInstant()
-        days.plusSeconds((item.sku?.bestBeforeDays ?: 0).toLong() * 24 * 60 * 60)
-        val expiryDate = LocalDateTime.ofInstant(days, java.util.TimeZone.getDefault().toZoneId())
-        val now = LocalDateTime.now()
-        var daysUntilExpiry by remember { mutableStateOf(ChronoUnit.DAYS.between(now, expiryDate)) }.also { Log.i("days", it.value.toString()) }
+        var item by remember {
+            mutableStateOf(
+                CreateProductDTO(
+                    id = 0,
+                    sku = Sku(0, "", pictureUrl = "", bestBeforeDays = 0, products = emptyList()),
+                    holodos = holodos.copy(users = listOf(user), products = emptyList()),
+                    quantity = 1,
+                    dateMade = fmt.format(LocalDateTime.now().atZone(ZoneId.systemDefault())),
+                    owner = user
+                )
+            )
+        }
 
         var text by remember { mutableStateOf(item.sku?.name ?: "") }
 
         Card(
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
         ) {
             Column(
-                modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
                     text = stringResource(R.string.askAdd), style = TextStyle(
                         fontSize = 24.sp
-                    ), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center
+                    ), modifier = Modifier.fillMaxWidth().padding(0.dp, 4.dp, 0.dp, 0.dp), textAlign = TextAlign.Center
                 )
                 Row {
                     OutlinedTextField(
+                        isError = isError,
                         value = text,
-                        onValueChange = { text = it },
+                        onValueChange = {
+                            text = it
+                            isError = false
+                        },
                         label = { Text(stringResource(R.string.productName)) },
                         modifier = Modifier.padding(2.dp),
                         singleLine = true
                     )
                 }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Column {
-                        Button(onClick = {
-                            daysUntilExpiry += 1
-                        }) { Icon(Icons.Filled.KeyboardArrowUp, contentDescription = null) }
-                        Button(
-                            onClick = {
-                                daysUntilExpiry -= 1
-                            }, enabled = daysUntilExpiry > 0
-                        ) { Icon(Icons.Filled.KeyboardArrowDown, contentDescription = null) }
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedIconButton(
+                        onClick = {
+                            daysUntilExpiry -= 1
+                        }, enabled = daysUntilExpiry > 0
+                    ) { Icon(Icons.Filled.KeyboardArrowDown, contentDescription = null) }
                     OutlinedTextField(
                         value = daysUntilExpiry.toString(),
                         onValueChange = {
-                            daysUntilExpiry = (it.toIntOrNull() ?: 0).toLong()
+                            daysUntilExpiry = (it.toIntOrNull() ?: 0)
                         },
                         label = { Text(stringResource(R.string.BestBeforeDays)) },
-                        modifier = Modifier.padding(2.dp),
+                        modifier = Modifier
+                            .padding(2.dp)
+                            .weight(1f, false),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
                     )
+                    OutlinedIconButton(onClick = {
+                        daysUntilExpiry += 1
+                    }) { Icon(Icons.Filled.KeyboardArrowUp, contentDescription = null) }
+                }
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedIconButton(
+                        onClick = {
+                            item = item.copy(quantity = (item.quantity ?: 0) - 1)
+                        }, enabled = item.quantity != 1
+                    ) { Icon(Icons.Filled.KeyboardArrowDown, contentDescription = null) }
+                    OutlinedTextField(
+                        value = item.quantity.toString(),
+                        onValueChange = {
+                            item = item.copy(quantity = it.toIntOrNull() ?: 0)
+                        },
+                        label = { Text(stringResource(R.string.quantity)) },
+                        modifier = Modifier
+                            .padding(2.dp)
+                            .weight(1f, false),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
+                    )
+                    OutlinedIconButton(onClick = {
+                        item = item.copy(quantity = (item.quantity ?: 0) + 1)
+                    }) { Icon(Icons.Filled.KeyboardArrowUp, contentDescription = null) }
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = onDismissRequest) { Text(stringResource(R.string.cancel)) }
+                    TextButton(onClick = onDismissRequest) { Text(stringResource(R.string.cancel)) }
                     Button(modifier = Modifier.weight(1f), onClick = {
-                        onSave(item.copy(dateMade = now.minusDays(daysUntilExpiry).toString(), sku = item.sku?.copy(name = text, bestBeforeDays = daysUntilExpiry.toInt()) ?: Sku(name = text, bestBeforeDays = daysUntilExpiry.toInt())), daysUntilExpiry.toInt())
-                        onDismissRequest()
+                        if (text.isEmpty()) {
+                            isError = true
+                        } else {
+                            onSave(
+                                item.copy(
+                                    sku = item.sku?.copy(
+                                        name = text, bestBeforeDays = daysUntilExpiry
+                                    ) ?: Sku(name = text, bestBeforeDays = daysUntilExpiry)
+                                )
+                            )
+                            onDismissRequest()
+                        }
                     }) { Text(stringResource(R.string.save)) }
                 }
             }

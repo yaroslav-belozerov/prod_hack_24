@@ -9,12 +9,15 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,6 +27,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -40,10 +44,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -125,13 +131,19 @@ class MainActivity : AppCompatActivity() {
                                             imageVector = if (selected) screen.filled else screen.outlined,
                                             contentDescription = null,
                                             tint = MaterialTheme.colorScheme.primary,
-                                            modifier = if (!selected) Modifier.alpha(0.4f) else Modifier
+                                            modifier = (if (!selected) Modifier.alpha(0.4f) else Modifier).then(
+                                                Modifier.size(28.dp)
+                                            )
                                         )
                                         if (screen.resFilled != null && screen.resOutlined != null) Icon(
-                                            painter = if (selected) painterResource(screen.resFilled) else painterResource(screen.resOutlined),
+                                            painter = if (selected) painterResource(screen.resFilled) else painterResource(
+                                                screen.resOutlined
+                                            ),
                                             contentDescription = null,
                                             tint = MaterialTheme.colorScheme.primary,
-                                            modifier = (if (!selected) Modifier.alpha(0.4f) else Modifier).then(Modifier.size(32.dp))
+                                            modifier = (if (!selected) Modifier.alpha(0.4f) else Modifier).then(
+                                                Modifier.size(28.dp)
+                                            )
                                         )
                                     })
                                 }
@@ -144,10 +156,23 @@ class MainActivity : AppCompatActivity() {
                                 val navigation = Navigation.entries.find {
                                     it.route == navController.currentBackStackEntryAsState().value?.destination?.route
                                 }
-                                if (navigation != null) {
-                                    Text(
-                                        text = stringResource(navigation.title)
-                                    )
+                                Crossfade(navigation) { nav ->
+                                    when (nav) {
+                                        null -> {}
+                                        Navigation.FRIDGE -> settingsViewModel.hol.collectAsState().value?.name?.let {
+                                            Text(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                textAlign = TextAlign.Center,
+                                                text = it
+                                            )
+                                        }
+
+                                        else -> Text(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            textAlign = TextAlign.Center,
+                                            text = stringResource(nav.title)
+                                        )
+                                    }
                                 }
                             })
                         }, floatingActionButton = {
@@ -161,11 +186,23 @@ class MainActivity : AppCompatActivity() {
                                         }) {
                                             Icon(Icons.Filled.Add, "Add Product")
                                         }
-                                        val hol = settingsViewModel.hol.collectAsState().value.also { Log.i("hol", it.toString())}
-                                        val curr = settingsViewModel.current.collectAsState().value.also { Log.i("curr", it.toString()) }
-                                        if (addWidgetOpen && (hol != null && curr != null)) AddWidget(onSave = { it, days ->
-                                            mainViewModel.createItem(it, settingsViewModel.hol.value!!.id!!, days)
-                                        }, holodos = hol, user = curr) {
+                                        val hol =
+                                            settingsViewModel.hol.collectAsState().value.also {
+                                                Log.i(
+                                                    "hol", it.toString()
+                                                )
+                                            }
+                                        val curr =
+                                            settingsViewModel.current.collectAsState().value.also {
+                                                Log.i(
+                                                    "curr", it.toString()
+                                                )
+                                            }
+                                        if (addWidgetOpen && (hol != null && curr != null)) AddWidget(
+                                            onSave = {
+                                                settingsViewModel.createItem(it)
+                                            }, holodos = hol, user = curr
+                                        ) {
                                             addWidgetOpen = false
                                         }
                                         FloatingActionButton(onClick = {
@@ -177,10 +214,14 @@ class MainActivity : AppCompatActivity() {
                                             cameraPermissionRequestLauncher.launch(android.Manifest.permission.CAMERA)
                                             navController.navigate(Navigation.SCAN.route)
                                         }) {
-                                            Icon(painterResource(R.drawable.qr_code), "Add Product by QR")
+                                            Icon(
+                                                painterResource(R.drawable.qr_code),
+                                                "Add Product by QR"
+                                            )
                                         }
                                     }
                                 }
+
                                 else -> {}
                             }
                         }) { innerPadding ->
@@ -191,27 +232,46 @@ class MainActivity : AppCompatActivity() {
                             ) {
                                 composable(Navigation.SETTINGS.route) {
                                     val user = settingsViewModel.users.collectAsState().value
-                                    SettingsPage(settingsViewModel, user, onAddUser = { phone, isSponsor ->
-                                        settingsViewModel.addUser(phone, isSponsor)
-                                    })
+                                    SettingsPage(
+                                        settingsViewModel,
+                                        user,
+                                        onAddUser = { phone, isSponsor ->
+                                            settingsViewModel.addUser(phone, isSponsor)
+                                        })
                                 }
                                 composable(Navigation.FRIDGE.route) {
-                                    val items = mainViewModel.items.collectAsState().value
+                                    val items = settingsViewModel.items.collectAsState().value
                                     settingsViewModel.hol.collectAsState().value?.let {
-                                        MainPage(mainViewModel, it.id!!, items)
+                                        MainPage(settingsViewModel, it.id!!, items)
                                     }
 
-                                    if (sortModal) ModalBottomSheet(onDismissRequest = { sortModal = false }) {
-                                        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                            Text(fontSize = 24.sp, text = stringResource(R.string.sort))
+                                    if (sortModal) ModalBottomSheet(onDismissRequest = {
+                                        sortModal = false
+                                    }) {
+                                        Column(
+                                            modifier = Modifier.padding(16.dp),
+                                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            Text(
+                                                fontSize = 24.sp,
+                                                text = stringResource(R.string.sort)
+                                            )
                                             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                                 Sorting.entries.map {
-                                                    if (it == mainViewModel.sort.collectAsState().value) {
-                                                        Button(onClick = { mainViewModel.setSorting(Sorting.NONE) }) {
+                                                    if (it == settingsViewModel.sort.collectAsState().value) {
+                                                        Button(onClick = {
+                                                            settingsViewModel.setSorting(
+                                                                Sorting.NONE
+                                                            )
+                                                        }) {
                                                             Text(stringResource(it.res))
                                                         }
                                                     } else {
-                                                        OutlinedButton(onClick = { mainViewModel.setSorting(it) }) {
+                                                        OutlinedButton(onClick = {
+                                                            settingsViewModel.setSorting(
+                                                                it
+                                                            )
+                                                        }) {
                                                             Text(stringResource(it.res))
                                                         }
                                                     }
@@ -232,10 +292,10 @@ class MainActivity : AppCompatActivity() {
                                 }
                                 composable(Navigation.SCAN.route) {
                                     QrPage(shouldShowCamera.collectAsState().value) {
-                                        mainViewModel.getQrData(it)
+                                        settingsViewModel.getQrData(it)
                                     }
                                     if (addQRWidgetOpen) {
-                                        val items = mainViewModel.qr.collectAsState().value
+                                        val items = settingsViewModel.qr.collectAsState().value
                                         Dialog(onDismissRequest = { addQRWidgetOpen = false }) {
                                             LazyColumn {
                                                 items(items.data?.json?.items!!) {
@@ -259,6 +319,16 @@ class MainActivity : AppCompatActivity() {
                                 val code = settingsViewModel.code.collectAsState().value
                                 Text(code.toString())
                             }
+                        }
+                    }
+                } else {
+                    Scaffold {
+                        Box(
+                            modifier = Modifier
+                                .padding(it)
+                                .fillMaxSize()
+                        ) {
+                            CircularProgressIndicator(Modifier.align(Alignment.Center))
                         }
                     }
                 }

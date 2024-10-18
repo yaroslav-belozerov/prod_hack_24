@@ -2,7 +2,7 @@ package com.yaabelozerov.holodos_mobile.data
 
 import com.squareup.moshi.Json
 
-class QRDTO (
+data class QRDTO (
     @Json(name = "code")
     var code: Int? = null,
 
@@ -13,7 +13,15 @@ class QRDTO (
     var data: Data? = null,
 )
 
-class Data (
+data class ErrQRDTO(
+    @Json(name = "code")
+    val code: Int? = null,
+
+    @Json(name = "data")
+    var data: String? = null,
+)
+
+data class Data (
     @Json(name = "json")
     var json: com.yaabelozerov.holodos_mobile.data.Json? = null,
 
@@ -21,12 +29,11 @@ class Data (
     var html: String? = null,
 )
 
-class Json (
+data class Json (
     @Json(name = "items")
     var items: List<Item>? = null,
 )
-
-class Item (
+data class Item (
     @Json(name = "nds")
     var nds: Int? = null,
 

@@ -121,9 +121,11 @@ class SettingsScreenViewModel @Inject constructor(
             val r =
                 api.getUserByPhone(number)
                     .awaitResponse()
-            if (r.body()?.role == "Child") { // TODO тут нихуя не child и adult просто все забыли что тут именно
+            if (r.body()?.role == "SPONSOR") { // Ладно, я нашел что SPONSOR
+                _userIsChild.update { false }
+            } else if (r.body()?.role != "SPONSOR") {
                 _userIsChild.update { true }
-            } else if (r.body()?.role == "Adult")
+            }
             if (r.code() == 200) {
                 dataStoreManager.setUid(r.body()!!.id!!)
             } else if (r.code() == 404) {

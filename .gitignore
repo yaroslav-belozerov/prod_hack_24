@@ -14,5 +14,4 @@
 .externalNativeBuild
 .cxx
 local.properties
-prod_hack_ssh
-prod_hack_ssh.pub
+

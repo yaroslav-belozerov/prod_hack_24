@@ -163,7 +163,7 @@ class MainActivity : AppCompatActivity() {
                                             Text(
                                                 modifier = Modifier.fillMaxWidth(),
                                                 textAlign = TextAlign.Center,
-                                                text = it
+                                                text = stringResource(nav.title)
                                             )
                                         }
 
@@ -281,7 +281,7 @@ class MainActivity : AppCompatActivity() {
                                     }
                                 }
                                 composable(Navigation.LIST.route) {
-                                    ShoppingListPage(mainViewModel.cart)
+                                    ShoppingListPage(mainViewModel.cart, settingsViewModel)
                                 }
                                 composable(Navigation.AUTH.route) {
                                     AuthPage(modifier = Modifier.padding(innerPadding)) {

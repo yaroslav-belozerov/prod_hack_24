@@ -24,7 +24,6 @@ import androidx.compose.ui.window.Dialog
 import com.yaabelozerov.holodos_mobile.R
 import com.yaabelozerov.holodos_mobile.data.ItemDTO
 import com.yaabelozerov.holodos_mobile.data.QRDTO
-import com.yaabelozerov.holodos_mobile.domain.RussianNumberVisualTransformation
 
 @Composable
 fun Item_(

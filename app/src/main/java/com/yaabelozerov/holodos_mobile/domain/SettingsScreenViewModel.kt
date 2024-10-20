@@ -38,6 +38,9 @@ class SettingsScreenViewModel @Inject constructor(
     private val _users = MutableStateFlow(emptyList<CreateUserDTO>())
     val users = _users.asStateFlow()
 
+    private val _userIsChild = MutableStateFlow(true)
+    var userIsChild = _userIsChild.asStateFlow()
+
     private val _current = MutableStateFlow<CreateUserDTO?>(null)
     val current = _current.asStateFlow()
 
@@ -110,11 +113,17 @@ class SettingsScreenViewModel @Inject constructor(
         return num
     }
 
+    // TODO написать acceptItemToCart(Item)
+    // TODO написать DeclineItemFromCart(Item)
+
     fun login(number: String) {
         viewModelScope.launch {
             val r =
                 api.getUserByPhone(number)
                     .awaitResponse()
+            if (r.body()?.role == "Child") { // TODO тут нихуя не child и adult просто все забыли что тут именно
+                _userIsChild.update { true }
+            } else if (r.body()?.role == "Adult")
             if (r.code() == 200) {
                 dataStoreManager.setUid(r.body()!!.id!!)
             } else if (r.code() == 404) {
@@ -226,6 +235,7 @@ class SettingsScreenViewModel @Inject constructor(
             }
         }
     }
+
 
     fun setSorting(sorting: Sorting) {
         _sort.update { sorting }
